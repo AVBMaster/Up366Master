@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Up366Master.SessionManagePage"
+             Title="会话管理"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="16">
+
+            <!-- 当前状态 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="16"
+                   Padding="20"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="当前会话状态" 
+                           FontAttributes="Bold" 
+                           FontSize="18"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Text="登录状态" TextColor="#8E8E93"/>
+                        <Label x:Name="AuthStatusLabel" Grid.Column="1" FontAttributes="Bold"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" Opacity="0.5"/>
+
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Text="用户" TextColor="#8E8E93"/>
+                        <Label x:Name="UserNameLabel" Grid.Column="1" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" Opacity="0.5"/>
+
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Text="UID" TextColor="#8E8E93"/>
+                        <Label x:Name="UidLabel" Grid.Column="1" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" FontFamily="monospace"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" Opacity="0.5"/>
+
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Text="Token" TextColor="#8E8E93"/>
+                        <Label x:Name="TokenStatusLabel" Grid.Column="1" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" Opacity="0.5"/>
+
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Text="UP366-C" TextColor="#8E8E93"/>
+                        <Label x:Name="CookieStatusLabel" Grid.Column="1" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 本地文件状态 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="16"
+                   Padding="20"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="本地会话文件" 
+                           FontAttributes="Bold" 
+                           FontSize="18"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Text="文件状态" TextColor="#8E8E93"/>
+                        <Label x:Name="FileStatusLabel" Grid.Column="1" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" Opacity="0.5"/>
+
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Text="保存用户" TextColor="#8E8E93"/>
+                        <Label x:Name="SavedUserLabel" Grid.Column="1" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" Opacity="0.5"/>
+
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Text="保存时间" TextColor="#8E8E93"/>
+                        <Label x:Name="SavedTimeLabel" Grid.Column="1" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" Opacity="0.5"/>
+
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Text="已过期" TextColor="#8E8E93"/>
+                        <Label x:Name="ExpiredLabel" Grid.Column="1" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 操作按钮 -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="保存当前会话"
+                        BackgroundColor="#34C759"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="48"
+                        Clicked="OnSaveClicked"/>
+                <Button Grid.Column="1"
+                        Text="加载本地会话"
+                        BackgroundColor="#007AFF"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="48"
+                        Clicked="OnLoadClicked"/>
+            </Grid>
+
+            <Button Text="清除会话并退出"
+                    BackgroundColor="#FF3B30"
+                    TextColor="White"
+                    CornerRadius="10"
+                    HeightRequest="48"
+                    Clicked="OnClearClicked"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

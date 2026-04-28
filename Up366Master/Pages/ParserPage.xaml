@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="Up366Master.ParserPage"
+             Title="题目解析"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
+
+    <!-- ★ 关键修复：定义 InvertedBoolConverter -->
+    <ContentPage.Resources>
+        <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- 路径选择 -->
+        <VerticalStackLayout Grid.Row="0" Spacing="8" Padding="16">
+            <Grid ColumnDefinitions="*,Auto">
+                <Entry x:Name="PathEntry"
+                       Placeholder="选择 questions 文件夹路径"
+                       BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                <Button Grid.Column="1"
+                        Text="浏览"
+                        BackgroundColor="#007AFF"
+                        TextColor="White"
+                        CornerRadius="8"
+                        Clicked="OnBrowseClicked"/>
+            </Grid>
+            <!-- ★ 新增：导出答案按钮 -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="开始解析"
+                        BackgroundColor="#34C759"
+                        TextColor="White"
+                        CornerRadius="10"
+                        Clicked="OnParseClicked"/>
+                <Button Grid.Column="1"
+                        x:Name="ExportBtn"
+                        Text="导出答案"
+                        BackgroundColor="#5856D6"
+                        TextColor="White"
+                        CornerRadius="10"
+                        IsEnabled="False"
+                        Clicked="OnExportClicked"/>
+            </Grid>
+        </VerticalStackLayout>
+
+        <!-- 解析结果 -->
+        <CollectionView Grid.Row="1"
+                       x:Name="QuestionsCollection"
+                       EmptyView="暂无解析结果">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                           CornerRadius="12"
+                           Padding="16"
+                           Margin="12,6"
+                           HasShadow="False">
+                        <VerticalStackLayout Spacing="8">
+                            <!-- 题头 -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="{Binding HeaderText}"
+                                       FontAttributes="Bold"
+                                       FontSize="16"
+                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                                <Frame Grid.Column="1"
+                                       BackgroundColor="{Binding TypeColor}"
+                                       CornerRadius="8"
+                                       Padding="6,2"
+                                       HasShadow="False">
+                                    <Label Text="{Binding TypeText}"
+                                           FontSize="11"
+                                           TextColor="White"
+                                           FontAttributes="Bold"/>
+                                </Frame>
+                            </Grid>
+
+                            <!-- 问题内容 -->
+                            <Label Text="{Binding QuestionText}"
+                                   TextColor="{AppThemeBinding Light=#333333, Dark=#CCCCCC}"
+                                   FontSize="14"/>
+
+                            <!-- 单题选项（★ 修复：InvertedBoolConverter 已定义） -->
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Options}"
+                                               Spacing="4"
+                                               IsVisible="{Binding IsComposite, Converter={StaticResource InvertedBoolConverter}}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnDefinitions="Auto,*">
+                                            <Label Text="{Binding Id}"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{Binding OptionColor}"
+                                                   WidthRequest="24"/>
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding Content}"
+                                                   TextColor="{Binding OptionColor}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+
+                            <!-- 答案 -->
+                            <Label Text="{Binding AnswerText}"
+                                   FontAttributes="Bold"
+                                   TextColor="#34C759"/>
+
+                            <!-- 原文 -->
+                            <Frame BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                   CornerRadius="8"
+                                   Padding="12"
+                                   HasShadow="False"
+                                   IsVisible="{Binding HasTranscript}">
+                                <Label Text="{Binding Transcript}"
+                                       FontSize="12"
+                                       TextColor="#8E8E93"
+                                       FontFamily="monospace"/>
+                            </Frame>
+
+                            <!-- 子题（复合题） -->
+                            <VerticalStackLayout IsVisible="{Binding IsComposite}"
+                                               Spacing="12"
+                                               Margin="0,8,0,0">
+                                <BindableLayout.ItemsSource>
+                                    <Binding Path="SubQuestions"/>
+                                </BindableLayout.ItemsSource>
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <Frame BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                               CornerRadius="8"
+                                               Padding="12"
+                                               HasShadow="False">
+                                            <VerticalStackLayout Spacing="6">
+                                                <Label Text="{Binding SubHeader}"
+                                                       FontAttributes="Bold"
+                                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                                                <Label Text="{Binding QuestionText}"
+                                                       TextColor="{AppThemeBinding Light=#333333, Dark=#CCCCCC}"/>
+
+                                                <!-- 子题选项 -->
+                                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Options}"
+                                                                   Spacing="4"
+                                                                   Margin="4,4,0,0">
+                                                    <BindableLayout.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid ColumnDefinitions="Auto,*">
+                                                                <Label Text="{Binding Id}"
+                                                                       FontAttributes="Bold"
+                                                                       TextColor="{Binding OptionColor}"
+                                                                       WidthRequest="24"/>
+                                                                <Label Grid.Column="1"
+                                                                       Text="{Binding Content}"
+                                                                       TextColor="{Binding OptionColor}"/>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </BindableLayout.ItemTemplate>
+                                                </VerticalStackLayout>
+
+                                                <Label Text="{Binding AnswerText}"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#34C759"/>
+                                            </VerticalStackLayout>
+                                        </Frame>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

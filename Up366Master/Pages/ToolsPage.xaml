@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Up366Master.ToolsPage"
+             Title="工具箱"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="16">
+
+            <!-- CDN下载工具 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="16"
+                   Padding="20"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="CDN 直链获取" 
+                           FontSize="18" 
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+
+                    <Entry x:Name="PcFileIdEntry"
+                           Placeholder="输入 PC FileId"
+                           BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+
+                    <Button Text="获取下载链接"
+                            BackgroundColor="#007AFF"
+                            TextColor="White"
+                            CornerRadius="10"
+                            Clicked="OnGetDownloadUrl"/>
+
+                    <Label x:Name="UrlResultLabel"
+                           Text=""
+                           FontSize="12"
+                           TextColor="#34C759"
+                           IsVisible="False"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 端到端向导 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="16"
+                   Padding="20"
+                   HasShadow="False">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnEndToEndTapped"/>
+                </Frame.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                    <Label Text="&#xf135;" 
+                           FontFamily="FA6Solid"
+                           FontSize="28"
+                           TextColor="#FF9500"
+                           VerticalOptions="Center"/>
+                    <VerticalStackLayout Grid.Column="1">
+                        <Label Text="端到端向导" 
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                        <Label Text="自动完成：选班→选作业→下载→解析" 
+                               FontSize="13"
+                               TextColor="#8E8E93"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- 题目解析入口 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="16"
+                   Padding="20"
+                   HasShadow="False">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnParserTapped"/>
+                </Frame.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                    <Label Text="&#xf15c;" 
+                           FontFamily="FA6Solid"
+                           FontSize="28"
+                           TextColor="#5856D6"
+                           VerticalOptions="Center"/>
+                    <VerticalStackLayout Grid.Column="1">
+                        <Label Text="题目解析" 
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                        <Label Text="解析已下载的听力题目数据" 
+                               FontSize="13"
+                               TextColor="#8E8E93"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- 快速操作 -->
+            <Label Text="快速操作" 
+                   FontSize="16" 
+                   FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                   Margin="0,8,0,0"/>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="保存会话"
+                        BackgroundColor="#34C759"
+                        TextColor="White"
+                        CornerRadius="10"
+                        Clicked="OnSaveSession"/>
+                <Button Grid.Column="1"
+                        Text="清除会话"
+                        BackgroundColor="#FF3B30"
+                        TextColor="White"
+                        CornerRadius="10"
+                        Clicked="OnClearSession"/>
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

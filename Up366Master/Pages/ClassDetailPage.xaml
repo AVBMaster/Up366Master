@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Up366Master.ClassDetailPage"
+             Title="班级详情"
+             Shell.NavBarIsVisible="True"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
+
+    <RefreshView x:Name="RefreshView" Refreshing="OnRefreshing">
+        <ScrollView>
+            <VerticalStackLayout Spacing="16" Padding="16">
+
+                <!-- 班级信息卡片 -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                       CornerRadius="16"
+                       Padding="20"
+                       HasShadow="False">
+                    <VerticalStackLayout Spacing="8">
+                        <Label x:Name="ClassNameLabel"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                        <Label x:Name="TeacherLabel"
+                               FontSize="15"
+                               TextColor="#8E8E93"/>
+                        <Label x:Name="OrganLabel"
+                               FontSize="13"
+                               TextColor="#C7C7CC"/>
+                        <Label x:Name="JoinTimeLabel"
+                               FontSize="12"
+                               TextColor="#C7C7CC"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- 统计卡片 -->
+                <Label Text="任务统计"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+
+                <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                       CornerRadius="16"
+                       Padding="20"
+                       HasShadow="False">
+                    <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto" RowSpacing="12">
+                        <Label Grid.Row="0" Grid.Column="0" Text="总任务" FontSize="12" TextColor="#8E8E93" HorizontalOptions="Center"/>
+                        <Label Grid.Row="1" Grid.Column="0" x:Name="TaskNumLabel" FontSize="24" FontAttributes="Bold" TextColor="#007AFF" HorizontalOptions="Center"/>
+
+                        <Label Grid.Row="0" Grid.Column="1" Text="教材" FontSize="12" TextColor="#8E8E93" HorizontalOptions="Center"/>
+                        <Label Grid.Row="1" Grid.Column="1" x:Name="BookTaskLabel" FontSize="24" FontAttributes="Bold" TextColor="#34C759" HorizontalOptions="Center"/>
+
+                        <Label Grid.Row="0" Grid.Column="2" Text="测验" FontSize="12" TextColor="#8E8E93" HorizontalOptions="Center"/>
+                        <Label Grid.Row="1" Grid.Column="2" x:Name="TestLabel" FontSize="24" FontAttributes="Bold" TextColor="#FF9500" HorizontalOptions="Center"/>
+
+                        <Label Grid.Row="0" Grid.Column="3" Text="错题" FontSize="12" TextColor="#8E8E93" HorizontalOptions="Center"/>
+                        <Label Grid.Row="1" Grid.Column="3" x:Name="WrongLabel" FontSize="24" FontAttributes="Bold" TextColor="#FF3B30" HorizontalOptions="Center"/>
+                    </Grid>
+                </Frame>
+
+                <!-- 快捷操作 -->
+                <Button Text="查看作业列表"
+                        BackgroundColor="#007AFF"
+                        TextColor="White"
+                        CornerRadius="12"
+                        HeightRequest="50"
+                        Clicked="OnViewHomeworkClicked"/>
+
+                <Button Text="刷新统计"
+                        BackgroundColor="{AppThemeBinding Light=#E5E5EA, Dark=#2C2C2E}"
+                        TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                        CornerRadius="12"
+                        HeightRequest="44"
+                        Clicked="OnRefreshStatsClicked"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

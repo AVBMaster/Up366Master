@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Up366Master.ClassesPage"
+             Title="我的班级"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- 搜索栏 -->
+        <SearchBar Grid.Row="0" 
+                   x:Name="SearchBar"
+                   Placeholder="搜索班级..."
+                   TextChanged="OnSearchTextChanged"
+                   BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   Margin="8"/>
+
+        <RefreshView Grid.Row="1" x:Name="RefreshView" Refreshing="OnRefreshing">
+            <CollectionView x:Name="ClassesCollection"
+                           EmptyView="暂无班级数据">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <SwipeView>
+                            <SwipeView.RightItems>
+                                <SwipeItems>
+                                    <SwipeItem Text="作业"
+                                               BackgroundColor="#34C759"
+                                               Invoked="OnViewHomework"/>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+
+                            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                                   CornerRadius="12"
+                                   Padding="16"
+                                   Margin="12,6"
+                                   HasShadow="False"
+                                   BorderColor="Transparent">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnClassTapped" 
+                                                        CommandParameter="{Binding .}"/>
+                                </Frame.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                    <Frame Grid.Column="0"
+                                           BackgroundColor="{Binding AvatarColor}"
+                                           CornerRadius="20"
+                                           WidthRequest="40"
+                                           HeightRequest="40"
+                                           Padding="0"
+                                           HasShadow="False">
+                                        <Label Text="{Binding AvatarText}" 
+                                               FontSize="14"
+                                               TextColor="White"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"
+                                               FontAttributes="Bold"/>
+                                    </Frame>
+
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding CourseName}" 
+                                               FontAttributes="Bold"
+                                               FontSize="15"
+                                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                                        <Label Text="{Binding TeacherName}" 
+                                               FontSize="13" 
+                                               TextColor="#8E8E93"/>
+                                        <Label Text="{Binding OrganName}" 
+                                               FontSize="12" 
+                                               TextColor="#C7C7CC"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Frame>
+                        </SwipeView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

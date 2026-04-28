@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/使用前请看/">
+    <File Path="合法性.txt" />
+  </Folder>
+  <Project Path="Up366Master/Up366Master.csproj" Id="80bf7231-8167-427f-82e1-a060374af86e">
+    <Deploy Solution="Debug|*" />
+  </Project>
+  <Project Path="Up366MasterCLI/Up366MasterCLI.csproj" />
+  <Project Path="Up366Net/Up366Net.csproj" />
+  <Project Path="Up366Parser/Up366Parser.csproj" Id="14044f6e-b654-4224-9912-ff8a5b5de2fb" />
+</Solution>

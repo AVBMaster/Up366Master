@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Up366Master.ProfilePage"
+             Title="我的"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="16">
+
+            <!-- 用户信息卡片 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="16"
+                   Padding="20"
+                   HasShadow="False">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                    <Frame BackgroundColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
+                           CornerRadius="35"
+                           WidthRequest="70"
+                           HeightRequest="70"
+                           Padding="0"
+                           HasShadow="False">
+                        <Label x:Name="AvatarLabel"
+                               FontSize="28"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               FontAttributes="Bold"/>
+                    </Frame>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
+                        <Label x:Name="NameLabel"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                        <Label x:Name="UidLabel"
+                               FontSize="14"
+                               TextColor="#8E8E93"/>
+                        <Label x:Name="StatusLabel"
+                               FontSize="12"
+                               TextColor="#34C759"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- 会话详情 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="16"
+                   Padding="16"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="会话详情" 
+                           FontAttributes="Bold"
+                           FontSize="16"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+
+                    <Grid ColumnDefinitions="100,*">
+                        <Label Text="Token" TextColor="#8E8E93"/>
+                        <Label x:Name="TokenLabel" Grid.Column="1" 
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                               FontFamily="monospace" FontSize="12"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" Opacity="0.5"/>
+
+                    <Grid ColumnDefinitions="100,*">
+                        <Label Text="TGT" TextColor="#8E8E93"/>
+                        <Label x:Name="TgtLabel" Grid.Column="1" 
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                               FontFamily="monospace" FontSize="12"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" Opacity="0.5"/>
+
+                    <Grid ColumnDefinitions="100,*">
+                        <Label Text="UP366-C" TextColor="#8E8E93"/>
+                        <Label x:Name="CookieLabel" Grid.Column="1" 
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                               FontFamily="monospace" FontSize="12"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 操作列表 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="16"
+                   Padding="0"
+                   HasShadow="False">
+                <VerticalStackLayout>
+                    <Grid Padding="16" ColumnDefinitions="Auto,*">
+                        <Label Text="&#xf2f1;" 
+                               FontFamily="FA6Solid"
+                               FontSize="18"
+                               TextColor="#007AFF"
+                               WidthRequest="30"/>
+                        <Label Grid.Column="1" 
+                               Text="会话管理"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                               VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSessionManage"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" Margin="16,0"/>
+
+                    <Grid Padding="16" ColumnDefinitions="Auto,*">
+                        <Label Text="&#xf08b;" 
+                               FontFamily="FA6Solid"
+                               FontSize="18"
+                               TextColor="#FF3B30"
+                               WidthRequest="30"/>
+                        <Label Grid.Column="1" 
+                               Text="退出登录"
+                               TextColor="#FF3B30"
+                               VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnLogout"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

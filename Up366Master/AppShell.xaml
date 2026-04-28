@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:local="clr-namespace:Up366Master"
+       x:Class="Up366Master.AppShell"
+       Shell.BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+       Shell.ForegroundColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
+       Shell.TitleColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+       Shell.DisabledColor="#C7C7CC"
+       Shell.UnselectedColor="#8E8E93"
+       Shell.TabBarBackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#1C1C1E}"
+       Shell.TabBarTitleColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
+       Shell.TabBarUnselectedColor="#8E8E93"
+       FlyoutBehavior="Disabled">
+
+    <!-- 登录页（独立，不在 TabBar） -->
+    <ShellContent Route="LoginPage" 
+                Shell.FlyoutBehavior="Disabled"
+                Shell.NavBarIsVisible="False"
+                ContentTemplate="{DataTemplate local:LoginPage}" />
+
+    <!-- 主应用 TabBar（默认隐藏） -->
+    <TabBar x:Name="MainTabBar" Route="MainTabs" IsVisible="False">
+        <Tab Title="首页" Icon="home.png" Route="HomeTab">
+            <ShellContent ContentTemplate="{DataTemplate local:DashboardPage}" Route="DashboardPage"/>
+        </Tab>
+        <Tab Title="班级" Icon="class.png" Route="ClassTab">
+            <ShellContent ContentTemplate="{DataTemplate local:ClassesPage}" Route="ClassesPage"/>
+        </Tab>
+        <Tab Title="作业" Icon="assignment.png" Route="JobTab">
+            <ShellContent ContentTemplate="{DataTemplate local:HomeworkPage}" Route="HomeworkPage"/>
+        </Tab>
+        <Tab Title="工具" Icon="tools.png" Route="ToolTab">
+            <ShellContent ContentTemplate="{DataTemplate local:ToolsPage}" Route="ToolsPage"/>
+        </Tab>
+        <Tab Title="我的" Icon="profile.png" Route="ProfileTab">
+            <ShellContent ContentTemplate="{DataTemplate local:ProfilePage}" Route="ProfilePage"/>
+        </Tab>
+    </TabBar>
+
+</Shell>

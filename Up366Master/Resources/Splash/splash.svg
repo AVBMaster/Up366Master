@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <defs>
+    <!-- 主背景渐变 -->
+    <linearGradient id="splashBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="40%" stop-color="#1E3A8A"/>
+      <stop offset="100%" stop-color="#0EA5E9"/>
+    </linearGradient>
+
+    <!-- 书本渐变 -->
+    <linearGradient id="bookGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E0F2FE"/>
+    </linearGradient>
+
+    <!-- 皇冠渐变 -->
+    <linearGradient id="goldGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D"/>
+      <stop offset="50%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#B45309"/>
+    </linearGradient>
+
+    <!-- 光晕效果 -->
+    <radialGradient id="halo" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="rgba(14,165,233,0.3)"/>
+      <stop offset="100%" stop-color="rgba(14,165,233,0)"/>
+    </radialGradient>
+
+    <!-- 模糊滤镜 -->
+    <filter id="blurLarge">
+      <feGaussianBlur stdDeviation="60"/>
+    </filter>
+    <filter id="blurMedium">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+    <filter id="iconShadow">
+      <feDropShadow dx="0" dy="20" stdDeviation="30" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="1080" height="1920" fill="url(#splashBg)"/>
+
+  <!-- 装饰性背景元素 -->
+  <!-- 大光晕 -->
+  <circle cx="540" cy="700" r="400" fill="url(#halo)"/>
+
+  <!-- 装饰圆点 -->
+  <circle cx="200" cy="400" r="120" fill="rgba(14,165,233,0.15)" filter="url(#blurLarge)"/>
+  <circle cx="880" cy="500" r="80" fill="rgba(251,191,36,0.1)" filter="url(#blurLarge)"/>
+  <circle cx="150" cy="1200" r="100" fill="rgba(14,165,233,0.1)" filter="url(#blurLarge)"/>
+  <circle cx="900" cy="1300" r="150" fill="rgba(37,99,235,0.08)" filter="url(#blurLarge)"/>
+
+  <!-- 细线装饰 -->
+  <line x1="100" y1="300" x2="300" y2="500" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+  <line x1="780" y1="400" x2="980" y2="600" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+  <line x1="200" y1="1400" x2="400" y2="1600" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+  <line x1="700" y1="1500" x2="900" y2="1700" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+
+  <!-- 小星星/闪光点 -->
+  <g fill="rgba(255,255,255,0.3)">
+    <circle cx="300" cy="350" r="3"/>
+    <circle cx="750" cy="450" r="2"/>
+    <circle cx="180" cy="650" r="2.5"/>
+    <circle cx="850" cy="700" r="3"/>
+    <circle cx="400" cy="550" r="2"/>
+    <circle cx="650" cy="380" r="2.5"/>
+    <circle cx="250" cy="1100" r="2"/>
+    <circle cx="800" cy="1200" r="3"/>
+    <circle cx="350" cy="1450" r="2.5"/>
+    <circle cx="700" cy="1550" r="2"/>
+  </g>
+
+  <!-- 中央图标区域 -->
+  <g transform="translate(540, 780)" filter="url(#iconShadow)">
+    <!-- 图标背景圆 -->
+    <rect x="-140" y="-140" width="280" height="280" rx="60" ry="60" fill="url(#splashBg)" opacity="0.5"/>
+
+    <!-- 书本 -->
+    <g transform="translate(0, 10)">
+      <!-- 左页 -->
+      <path d="M -70 -40 Q -32 -52 0 -44 L 0 52 Q -32 60 -70 48 Z" fill="url(#bookGrad2)" stroke="#93C5FD" stroke-width="2"/>
+      <!-- 右页 -->
+      <path d="M 70 -40 Q 32 -52 0 -44 L 0 52 Q 32 60 70 48 Z" fill="url(#bookGrad2)" stroke="#93C5FD" stroke-width="2"/>
+      <!-- 书脊 -->
+      <path d="M -4 -44 L 4 -44 L 4 52 L -4 52 Z" fill="#60A5FA"/>
+
+      <!-- 左页文字 -->
+      <line x1="-56" y1="-24" x2="-16" y2="-24" stroke="#93C5FD" stroke-width="3" stroke-linecap="round"/>
+      <line x1="-56" y1="-8" x2="-12" y2="-8" stroke="#93C5FD" stroke-width="3" stroke-linecap="round"/>
+      <line x1="-56" y1="8" x2="-20" y2="8" stroke="#93C5FD" stroke-width="3" stroke-linecap="round"/>
+      <line x1="-56" y1="24" x2="-16" y2="24" stroke="#93C5FD" stroke-width="3" stroke-linecap="round"/>
+
+      <!-- 右页文字 -->
+      <line x1="16" y1="-24" x2="56" y2="-24" stroke="#93C5FD" stroke-width="3" stroke-linecap="round"/>
+      <line x1="12" y1="-8" x2="56" y2="-8" stroke="#93C5FD" stroke-width="3" stroke-linecap="round"/>
+      <line x1="20" y1="8" x2="56" y2="8" stroke="#93C5FD" stroke-width="3" stroke-linecap="round"/>
+      <line x1="16" y1="24" x2="56" y2="24" stroke="#93C5FD" stroke-width="3" stroke-linecap="round"/>
+    </g>
+
+    <!-- 皇冠 -->
+    <g transform="translate(0, -68)">
+      <path d="M -28 12 L -20 -12 L -8 4 L 0 -16 L 8 4 L 20 -12 L 28 12 Q 0 20 -28 12 Z" fill="url(#goldGrad2)"/>
+      <circle cx="0" cy="-6" r="4" fill="#EF4444"/>
+      <circle cx="-14" cy="-1" r="3" fill="#3B82F6"/>
+      <circle cx="14" cy="-1" r="3" fill="#3B82F6"/>
+      <rect x="-26" y="10" width="52" height="5" rx="2.5" fill="#B45309"/>
+    </g>
+
+    <!-- 网络节点 -->
+    <circle cx="-88" cy="-16" r="6" fill="rgba(255,255,255,0.4)"/>
+    <circle cx="88" cy="-16" r="6" fill="rgba(255,255,255,0.4)"/>
+    <circle cx="-88" cy="32" r="5" fill="rgba(255,255,255,0.25)"/>
+    <circle cx="88" cy="32" r="5" fill="rgba(255,255,255,0.25)"/>
+    <line x1="-72" y1="-12" x2="-82" y2="-16" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+    <line x1="72" y1="-12" x2="82" y2="-16" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+    <line x1="-68" y1="40" x2="-83" y2="32" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+    <line x1="68" y1="40" x2="83" y2="32" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+  </g>
+
+  <!-- 应用名称 -->
+  <text x="540" y="1080" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="800" fill="#FFFFFF" letter-spacing="6">天学网大师</text>
+
+  <!-- 英文副标题 -->
+  <text x="540" y="1150" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="500" fill="rgba(255,255,255,0.5)" letter-spacing="8">UP366 MASTER</text>
+
+  <!-- 底部装饰线 -->
+  <line x1="440" y1="1220" x2="640" y2="1220" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- 底部标语 -->
+  <text x="540" y="1280" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="400" fill="rgba(255,255,255,0.35)" letter-spacing="2">智能学习 · 高效作答</text>
+
+  <!-- 底部版权 -->
+  <text x="540" y="1820" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="400" fill="rgba(255,255,255,0.2)">Up366Master</text>
+</svg>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Up366Master.LoginPage"
+             Shell.NavBarIsVisible="False"
+             Shell.FlyoutBehavior="Disabled"
+             Shell.TabBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
+
+    <!-- 内容保持不变，但确保没有导航元素 -->
+    <Grid RowDefinitions="*,Auto,*">
+        <!-- 顶部装饰 -->
+        <BoxView Grid.Row="0" 
+                 BackgroundColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
+                 Opacity="0.1"
+                 HeightRequest="200"
+                 VerticalOptions="Start"/>
+
+        <VerticalStackLayout Grid.Row="1" 
+                            Spacing="20" 
+                            Padding="30,0"
+                            VerticalOptions="Center">
+
+            <!-- Logo区域 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="20"
+                   Padding="20"
+                   HasShadow="True"
+                   BorderColor="Transparent"
+                   HorizontalOptions="Center">
+                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <Label Text="Up366Master" 
+                           FontSize="28" 
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
+                           HorizontalOptions="Center"/>
+                    <Label Text="天学网学习助手" 
+                           FontSize="14" 
+                           TextColor="#8E8E93"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 登录表单 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="16"
+                   Padding="20"
+                   HasShadow="True"
+                   BorderColor="Transparent">
+                <VerticalStackLayout Spacing="16">
+
+                    <!-- 手机号输入 -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="手机号" 
+                               FontSize="13" 
+                               TextColor="#8E8E93"
+                               FontAttributes="Bold"/>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Entry x:Name="PhoneEntry"
+                                   Placeholder="请输入手机号"
+                                   Keyboard="Telephone"
+                                   MaxLength="11"
+                                   BackgroundColor="Transparent"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                            <Button x:Name="SendCodeBtn"
+                                    Grid.Column="1"
+                                    Text="获取验证码"
+                                    FontSize="12"
+                                    BackgroundColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
+                                    TextColor="White"
+                                    CornerRadius="8"
+                                    Padding="12,6"
+                                    Clicked="OnSendCodeClicked"/>
+                        </Grid>
+                        <BoxView HeightRequest="1" 
+                                 BackgroundColor="#E5E5EA" 
+                                 Opacity="0.5"/>
+                    </VerticalStackLayout>
+
+                    <!-- 验证码输入 -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="验证码" 
+                               FontSize="13" 
+                               TextColor="#8E8E93"
+                               FontAttributes="Bold"/>
+                        <Entry x:Name="CodeEntry"
+                               Placeholder="请输入6位验证码"
+                               Keyboard="Numeric"
+                               MaxLength="6"
+                               IsPassword="False"
+                               BackgroundColor="Transparent"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                        <BoxView HeightRequest="1" 
+                                 BackgroundColor="#E5E5EA" 
+                                 Opacity="0.5"/>
+                    </VerticalStackLayout>
+
+                    <!-- 登录按钮 -->
+                    <Button x:Name="LoginBtn"
+                            Text="登录"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            BackgroundColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
+                            TextColor="White"
+                            CornerRadius="12"
+                            HeightRequest="50"
+                            Clicked="OnLoginClicked"/>
+
+                    <!-- 状态显示 -->
+                    <Label x:Name="StatusLabel"
+                           Text=""
+                           FontSize="13"
+                           TextColor="#FF3B30"
+                           HorizontalOptions="Center"
+                           IsVisible="False"/>
+
+                    <!-- 加载本地会话按钮（如果有） -->
+                    <Button x:Name="LoadSessionBtn"
+                            Text="恢复上次登录"
+                            FontSize="14"
+                            BackgroundColor="Transparent"
+                            TextColor="#007AFF"
+                            IsVisible="False"
+                            Clicked="OnLoadSessionClicked"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 底部提示 -->
+            <Label Text="登录即表示同意服务条款"
+                   FontSize="12"
+                   TextColor="#8E8E93"
+                   HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

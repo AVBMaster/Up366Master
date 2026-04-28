@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Up366Master.DashboardPage"
+             Title="首页"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
+
+    <RefreshView x:Name="RefreshView" Refreshing="OnRefreshing">
+        <ScrollView>
+            <VerticalStackLayout Spacing="16" Padding="16">
+
+                <!-- 用户欢迎卡片 -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                       CornerRadius="16"
+                       Padding="20"
+                       HasShadow="False"
+                       BorderColor="Transparent">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                        <Frame Grid.Column="0" 
+                               BackgroundColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
+                               CornerRadius="25"
+                               WidthRequest="50"
+                               HeightRequest="50"
+                               Padding="0"
+                               HasShadow="False">
+                            <Label Text="{Binding FirstChar}" 
+                                   FontSize="20" 
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   FontAttributes="Bold"/>
+                        </Frame>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                            <Label Text="{Binding WelcomeText}" 
+                                   FontSize="18" 
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                            <Label Text="{Binding SubtitleText}" 
+                                   FontSize="13" 
+                                   TextColor="#8E8E93"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Frame>
+
+                <!-- 快捷统计 -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                           CornerRadius="12"
+                           Padding="16"
+                           HasShadow="False">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="班级数" FontSize="12" TextColor="#8E8E93"/>
+                            <Label Text="{Binding ClassCount}" 
+                                   FontSize="24" 
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Grid.Column="1"
+                           BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                           CornerRadius="12"
+                           Padding="16"
+                           HasShadow="False">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="待完成作业" FontSize="12" TextColor="#8E8E93"/>
+                            <Label Text="{Binding PendingJobs}" 
+                                   FontSize="24" 
+                                   FontAttributes="Bold"
+                                   TextColor="#FF9500"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- 快捷操作 -->
+                <Label Text="快捷操作" 
+                       FontSize="16" 
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                       Margin="0,8,0,0"/>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto" RowSpacing="12">
+                    <Frame Grid.Row="0" Grid.Column="0"
+                           BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                           CornerRadius="12"
+                           Padding="16"
+                           HasShadow="False">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnClassesTapped"/>
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="&#xf0c0;" 
+                                   FontFamily="FA6Solid" 
+                                   FontSize="24"
+                                   TextColor="#5856D6"/>
+                            <Label Text="班级列表" 
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                            <Label Text="查看所有班级" 
+                                   FontSize="12" 
+                                   TextColor="#8E8E93"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Frame Grid.Row="0" Grid.Column="1"
+                           BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                           CornerRadius="12"
+                           Padding="16"
+                           HasShadow="False">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnHomeworkTapped"/>
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="&#xf15b;" 
+                                   FontFamily="FA6Solid" 
+                                   FontSize="24"
+                                   TextColor="#34C759"/>
+                            <Label Text="作业管理" 
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                            <Label Text="查看作业列表" 
+                                   FontSize="12" 
+                                   TextColor="#8E8E93"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Frame Grid.Row="1" Grid.Column="0"
+                           BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                           CornerRadius="12"
+                           Padding="16"
+                           HasShadow="False">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToolsTapped"/>
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="&#xf7d9;" 
+                                   FontFamily="FA6Solid" 
+                                   FontSize="24"
+                                   TextColor="#FF9500"/>
+                            <Label Text="工具箱" 
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                            <Label Text="解析与下载" 
+                                   FontSize="12" 
+                                   TextColor="#8E8E93"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Frame Grid.Row="1" Grid.Column="1"
+                           BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                           CornerRadius="12"
+                           Padding="16"
+                           HasShadow="False">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnSessionTapped"/>
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="&#xf2f1;" 
+                                   FontFamily="FA6Solid" 
+                                   FontSize="24"
+                                   TextColor="#FF3B30"/>
+                            <Label Text="会话管理" 
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                            <Label Text="管理登录状态" 
+                                   FontSize="12" 
+                                   TextColor="#8E8E93"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- 最近活动 -->
+                <Label Text="最近活动" 
+                       FontSize="16" 
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                       Margin="0,8,0,0"/>
+
+                <CollectionView x:Name="RecentActivityList"
+                               HeightRequest="200"
+                               EmptyView="暂无最近活动">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                                   CornerRadius="12"
+                                   Padding="12"
+                                   Margin="0,4"
+                                   HasShadow="False">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding Icon}" 
+                                           FontFamily="FA6Solid"
+                                           FontSize="16"
+                                           TextColor="{Binding IconColor}"
+                                           VerticalOptions="Center"
+                                           Margin="0,0,12,0"/>
+                                    <VerticalStackLayout Grid.Column="1">
+                                        <Label Text="{Binding Title}" 
+                                               FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                                        <Label Text="{Binding Time}" 
+                                               FontSize="12" 
+                                               TextColor="#8E8E93"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

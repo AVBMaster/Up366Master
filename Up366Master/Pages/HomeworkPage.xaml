@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Up366Master.HomeworkPage"
+             Title="作业管理"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- 班级选择器 -->
+        <Picker Grid.Row="0" 
+                x:Name="ClassPicker"
+                Title="选择班级"
+                SelectedIndexChanged="OnClassSelected"
+                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                Margin="12,8"/>
+
+        <RefreshView Grid.Row="1" x:Name="RefreshView" Refreshing="OnRefreshing">
+            <CollectionView x:Name="JobsCollection"
+                           EmptyView="暂无作业">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                               CornerRadius="12"
+                               Padding="16"
+                               Margin="12,6"
+                               HasShadow="False">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnJobTapped"
+                                                    CommandParameter="{Binding .}"/>
+                            </Frame.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                <Label Grid.Row="0" Grid.Column="0"
+                                       Text="{Binding JobName}" 
+                                       FontAttributes="Bold"
+                                       FontSize="15"
+                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+
+                                <Frame Grid.Row="0" Grid.Column="1"
+                                       BackgroundColor="{Binding StatusColor}"
+                                       CornerRadius="8"
+                                       Padding="6,2"
+                                       HasShadow="False">
+                                    <Label Text="{Binding StatusText}" 
+                                           FontSize="11"
+                                           TextColor="White"
+                                           FontAttributes="Bold"/>
+                                </Frame>
+
+                                <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                       Text="{Binding TimeRange}" 
+                                       FontSize="12" 
+                                       TextColor="#8E8E93"
+                                       Margin="0,4"/>
+
+                                <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                      ColumnDefinitions="Auto,Auto,*"
+                                      Margin="0,4,0,0">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding BookIdDisplay}" 
+                                           FontSize="11" 
+                                           TextColor="#C7C7CC"
+                                           FontFamily="monospace"/>
+                                    <Label Grid.Column="1"
+                                           Text="{Binding ContentIdDisplay}" 
+                                           FontSize="11" 
+                                           TextColor="#C7C7CC"
+                                           FontFamily="monospace"
+                                           Margin="8,0,0,0"/>
+                                </Grid>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

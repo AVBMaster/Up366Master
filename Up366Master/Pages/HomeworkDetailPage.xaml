@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Up366Master.HomeworkDetailPage"
+             Title="作业列表"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- 头部信息 -->
+        <Frame Grid.Row="0"
+               BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+               CornerRadius="0"
+               Padding="16"
+               HasShadow="False"
+               Margin="0,0,0,8">
+            <VerticalStackLayout Spacing="4">
+                <Label x:Name="HeaderClassLabel"
+                       FontAttributes="Bold"
+                       FontSize="16"
+                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                <Label x:Name="HeaderCountLabel"
+                       FontSize="13"
+                       TextColor="#8E8E93"/>
+            </VerticalStackLayout>
+        </Frame>
+
+        <RefreshView Grid.Row="1" x:Name="RefreshView" Refreshing="OnRefreshing">
+            <CollectionView x:Name="JobsCollection"
+                           EmptyView="该班级暂无作业">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <SwipeView>
+                            <SwipeView.RightItems>
+                                <SwipeItems>
+                                    <SwipeItem Text="下载"
+                                               BackgroundColor="#007AFF"
+                                               Invoked="OnDownloadSwipe"/>
+                                    <SwipeItem Text="解析"
+                                               BackgroundColor="#5856D6"
+                                               Invoked="OnParseSwipe"/>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+
+                            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                                   CornerRadius="12"
+                                   Padding="16"
+                                   Margin="12,6"
+                                   HasShadow="False">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnJobTapped"
+                                                        CommandParameter="{Binding .}"/>
+                                </Frame.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding JobName}" 
+                                           FontAttributes="Bold"
+                                           FontSize="15"
+                                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+
+                                    <Frame Grid.Row="0" Grid.Column="1"
+                                           BackgroundColor="{Binding StatusColor}"
+                                           CornerRadius="8"
+                                           Padding="6,2"
+                                           HasShadow="False">
+                                        <Label Text="{Binding StatusText}" 
+                                               FontSize="11"
+                                               TextColor="White"
+                                               FontAttributes="Bold"/>
+                                    </Frame>
+
+                                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                           Text="{Binding TimeRange}" 
+                                           FontSize="12" 
+                                           TextColor="#8E8E93"
+                                           Margin="0,4"/>
+
+                                    <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                          ColumnDefinitions="Auto,Auto,*" Margin="0,4,0,0">
+                                        <Frame BackgroundColor="#F2F2F7" 
+                                               CornerRadius="4" 
+                                               Padding="4,2" 
+                                               HasShadow="False">
+                                            <Label Text="{Binding BookIdShort}" 
+                                                   FontSize="10" 
+                                                   TextColor="#8E8E93"
+                                                   FontFamily="monospace"/>
+                                        </Frame>
+                                        <Frame Grid.Column="1" 
+                                               BackgroundColor="#F2F2F7" 
+                                               CornerRadius="4" 
+                                               Padding="4,2" 
+                                               Margin="8,0,0,0"
+                                               HasShadow="False">
+                                            <Label Text="{Binding ContentIdShort}" 
+                                                   FontSize="10" 
+                                                   TextColor="#8E8E93"
+                                                   FontFamily="monospace"/>
+                                        </Frame>
+                                    </Grid>
+
+                                    <!-- 进度条（可选） -->
+                                    <ProgressBar Grid.Row="3" 
+                                                 Grid.Column="0" 
+                                                 Grid.ColumnSpan="2"
+                                                 Progress="{Binding ProgressValue}"
+                                                 IsVisible="{Binding ShowProgress}"
+                                                 ProgressColor="#007AFF"
+                                                 Margin="0,8,0,0"/>
+                                </Grid>
+                            </Frame>
+                        </SwipeView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

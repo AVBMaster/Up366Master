@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Up366Master.AutoCompletePage"
+             Title="一键完成作业"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
+
+    <ScrollView x:Name="MainScrollView">
+        <VerticalStackLayout Spacing="20" Padding="20">
+
+            <!-- 警告提示 -->
+            <Frame BackgroundColor="#FFF3E0"
+                   CornerRadius="12"
+                   Padding="16"
+                   Margin="0,4"
+                   HasShadow="False">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                    <Label Text="&#xf071;"
+                           FontFamily="FA6Solid"
+                           FontSize="24"
+                           TextColor="#FF9500"
+                           VerticalOptions="Center"/>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                        <Label Text="注意"
+                               FontAttributes="Bold"
+                               TextColor="#E65100"/>
+                        <Label Text="此功能将自动完成选中的作业，请谨慎使用。建议仅在测试环境使用。"
+                               FontSize="12"
+                               TextColor="#BF360C"
+                               LineBreakMode="WordWrap"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- 作业信息卡片 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="16"
+                   Padding="16"
+                   Margin="0,4"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="目标作业"
+                           FontAttributes="Bold"
+                           FontSize="16"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+
+                    <Label x:Name="JobNameLabel"
+                           Text="未选择"
+                           FontSize="15"
+                           LineBreakMode="TailTruncation"
+                           MaxLines="2"
+                           TextColor="{AppThemeBinding Light=#333333, Dark=#CCCCCC}"/>
+
+                    <!-- 分数信息 -->
+                    <Grid x:Name="ScoreInfoGrid" ColumnDefinitions="*,*" IsVisible="False">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="目标得分" FontSize="12" TextColor="#8E8E93"/>
+                            <Label x:Name="TargetScoreLabel" Text="95%" FontSize="20" FontAttributes="Bold" TextColor="#34C759"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="预计用时" FontSize="12" TextColor="#8E8E93"/>
+                            <Label x:Name="TargetDurationLabel" Text="18分钟" FontSize="20" FontAttributes="Bold" TextColor="#007AFF"/>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                        <Label x:Name="BookIdLabel"
+                               FontSize="12"
+                               TextColor="#8E8E93"
+                               FontFamily="monospace"
+                               LineBreakMode="MiddleTruncation"/>
+                        <Label x:Name="TaskIdLabel"
+                               Grid.Column="1"
+                               FontSize="12"
+                               TextColor="#8E8E93"
+                               FontFamily="monospace"
+                               LineBreakMode="MiddleTruncation"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 参数设置 -->
+            <Label Text="参数设置"
+                   FontAttributes="Bold"
+                   FontSize="18"
+                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                   Margin="0,4,0,0"/>
+
+            <!-- 用时设置 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="12"
+                   Padding="16"
+                   Margin="0,4"
+                   HasShadow="False">
+                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8">
+                    <Label Text="模拟用时"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                           VerticalOptions="Center"
+                           FontSize="15"/>
+                    <Label x:Name="DurationLabel"
+                           Text="18 分钟"
+                           TextColor="#007AFF"
+                           FontAttributes="Bold"
+                           FontSize="16"
+                           Grid.Column="1"/>
+                    <Slider x:Name="DurationSlider"
+                            Grid.Row="1"
+                            Grid.ColumnSpan="2"
+                            Minimum="5"
+                            Maximum="60"
+                            Value="18"
+                            HeightRequest="40"
+                            ValueChanged="OnDurationChanged"/>
+                    <Label Grid.Row="2"
+                           Grid.ColumnSpan="2"
+                           Text="⚠️ 程序将真实等待此时间后再提交，期间请勿关闭应用"
+                           FontSize="11"
+                           TextColor="#FF9500"/>
+                </Grid>
+            </Frame>
+
+            <!-- 得分设置 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="12"
+                   Padding="16"
+                   Margin="0,4"
+                   HasShadow="False">
+                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8">
+                    <Label Text="目标得分"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                           VerticalOptions="Center"
+                           FontSize="15"/>
+                    <Label x:Name="ScoreLabel"
+                           Text="95%"
+                           TextColor="#34C759"
+                           FontAttributes="Bold"
+                           FontSize="16"
+                           Grid.Column="1"/>
+                    <Slider x:Name="ScoreSlider"
+                            Grid.Row="1"
+                            Grid.ColumnSpan="2"
+                            Minimum="60"
+                            Maximum="100"
+                            Value="95"
+                            HeightRequest="40"
+                            ValueChanged="OnScoreChanged"/>
+                    <Label Grid.Row="2"
+                           Grid.ColumnSpan="2"
+                           Text="建议设置在90-98%之间，满分可能不自然"
+                           FontSize="11"
+                           TextColor="#8E8E93"/>
+                </Grid>
+            </Frame>
+
+            <!-- 错题设置 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="12"
+                   Padding="16"
+                   Margin="0,4"
+                   HasShadow="False">
+                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8">
+                    <Label Text="故意答错数量"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                           VerticalOptions="Center"
+                           FontSize="15"/>
+                    <Label x:Name="MissLabel"
+                           Text="1 题"
+                           TextColor="#FF9500"
+                           FontAttributes="Bold"
+                           FontSize="16"
+                           Grid.Column="1"/>
+                    <Stepper x:Name="MissStepper"
+                             Grid.Row="1"
+                             Grid.ColumnSpan="2"
+                             Minimum="0"
+                             Maximum="5"
+                             Value="1"
+                             ValueChanged="OnMissChanged"/>
+                    <Label Grid.Row="2"
+                           Grid.ColumnSpan="2"
+                           Text="模拟真实作答，避免全对引起怀疑"
+                           FontSize="11"
+                           TextColor="#8E8E93"/>
+                </Grid>
+            </Frame>
+
+            <!-- ★★★ 执行按钮（等待期间变为不可点击）★★★ -->
+            <Button x:Name="ExecuteBtn"
+                    Text="开始一键完成"
+                    BackgroundColor="#FF3B30"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="12"
+                    HeightRequest="56"
+                    Margin="0,8,0,0"
+                    Clicked="OnExecuteClicked"/>
+
+            <!-- ★★★ 新增：等待中状态显示 ★★★ -->
+            <Frame x:Name="WaitingFrame"
+                   BackgroundColor="{AppThemeBinding Light=#FFF3E0, Dark=#2C2C2E}"
+                   CornerRadius="12"
+                   Padding="16"
+                   Margin="0,4"
+                   HasShadow="False"
+                   IsVisible="False">
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <Label Text="&#xf254;"
+                               FontFamily="FA6Solid"
+                               FontSize="28"
+                               TextColor="#FF9500"
+                               VerticalOptions="Center"/>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="正在模拟答题中..."
+                                   FontAttributes="Bold"
+                                   FontSize="16"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                            <Label Text="请勿关闭应用或切换后台"
+                                   FontSize="12"
+                                   TextColor="#FF3B30"/>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <ProgressBar x:Name="WaitingProgressBar"
+                                 ProgressColor="#FF9500"
+                                 HeightRequest="6"/>
+
+                    <Grid ColumnDefinitions="*,*">
+                        <VerticalStackLayout>
+                            <Label Text="已等待" FontSize="11" TextColor="#8E8E93"/>
+                            <Label x:Name="ElapsedTimeLabel" 
+                                   Text="0:00"
+                                   FontSize="20" 
+                                   FontAttributes="Bold"
+                                   TextColor="#FF9500"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1">
+                            <Label Text="剩余时间" FontSize="11" TextColor="#8E8E93"/>
+                            <Label x:Name="RemainingTimeLabel"
+                                   Text="18:00"
+                                   FontSize="20"
+                                   FontAttributes="Bold"
+                                   TextColor="#007AFF"/>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- 后台保活提示 -->
+                    <Frame BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
+                           CornerRadius="8"
+                           Padding="12"
+                           HasShadow="False">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="&#xf05a; 后台保活提示"
+                                   FontFamily="FA6Solid"
+                                   FontAttributes="Bold"
+                                   FontSize="13"
+                                   TextColor="#2E7D32"/>
+                            <Label Text="• 请勿点击返回键或Home键"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#1B5E20, Dark=#A5D6A7}"/>
+                            <Label Text="• 保持屏幕常亮"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#1B5E20, Dark=#A5D6A7}"/>
+                            <Label Text="• 请勿切换其他应用"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#1B5E20, Dark=#A5D6A7}"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Button x:Name="CancelWaitBtn"
+                            Text="取消等待"
+                            BackgroundColor="#8E8E93"
+                            TextColor="White"
+                            CornerRadius="10"
+                            HeightRequest="44"
+                            Clicked="OnCancelWaitClicked"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 进度显示 -->
+            <Frame x:Name="ProgressFrame"
+                   BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="12"
+                   Padding="16"
+                   Margin="0,4"
+                   HasShadow="False"
+                   IsVisible="False">
+                <VerticalStackLayout Spacing="12">
+                    <Label x:Name="StatusLabel"
+                           Text="准备中..."
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                           FontSize="15"/>
+                    <ProgressBar x:Name="ProgressBar"
+                                 ProgressColor="#007AFF"
+                                 HeightRequest="4"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label x:Name="DetailLabel"
+                               FontSize="12"
+                               TextColor="#8E8E93"/>
+                        <Label x:Name="PercentLabel"
+                               Grid.Column="1"
+                               FontSize="12"
+                               TextColor="#007AFF"
+                               FontAttributes="Bold"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 请求/响应日志显示区域 -->
+            <Frame x:Name="LogFrame"
+                   BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="12"
+                   Padding="16"
+                   Margin="0,4"
+                   HasShadow="False"
+                   IsVisible="False">
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="请求/响应日志"
+                               FontAttributes="Bold"
+                               FontSize="15"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                        <Button Grid.Column="1"
+                                Text="复制"
+                                FontSize="12"
+                                BackgroundColor="#007AFF"
+                                TextColor="White"
+                                CornerRadius="8"
+                                Padding="8,4"
+                                HeightRequest="32"
+                                Clicked="OnCopyLogClicked"/>
+                    </Grid>
+                    <ScrollView HeightRequest="300">
+                        <Label x:Name="LogLabel"
+                               FontSize="11"
+                               TextColor="#8E8E93"
+                               FontFamily="monospace"
+                               LineBreakMode="CharacterWrap"/>
+                    </ScrollView>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

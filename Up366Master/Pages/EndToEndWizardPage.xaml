@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Up366Master.EndToEndWizardPage"
+             Title="端到端向导"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- 步骤指示器 -->
+        <HorizontalStackLayout Grid.Row="0"
+                               Spacing="8"
+                               Padding="16"
+                               HorizontalOptions="Center">
+            <Frame x:Name="Step1Indicator"
+                   BackgroundColor="#007AFF"
+                   CornerRadius="16"
+                   WidthRequest="32"
+                   HeightRequest="32"
+                   Padding="0"
+                   HasShadow="False">
+                <Label Text="1" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" FontAttributes="Bold"/>
+            </Frame>
+            <BoxView WidthRequest="20" HeightRequest="2" BackgroundColor="#E5E5EA" VerticalOptions="Center"/>
+            <Frame x:Name="Step2Indicator"
+                   BackgroundColor="#E5E5EA"
+                   CornerRadius="16"
+                   WidthRequest="32"
+                   HeightRequest="32"
+                   Padding="0"
+                   HasShadow="False">
+                <Label Text="2" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" FontAttributes="Bold"/>
+            </Frame>
+            <BoxView WidthRequest="20" HeightRequest="2" BackgroundColor="#E5E5EA" VerticalOptions="Center"/>
+            <Frame x:Name="Step3Indicator"
+                   BackgroundColor="#E5E5EA"
+                   CornerRadius="16"
+                   WidthRequest="32"
+                   HeightRequest="32"
+                   Padding="0"
+                   HasShadow="False">
+                <Label Text="3" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" FontAttributes="Bold"/>
+            </Frame>
+            <BoxView WidthRequest="20" HeightRequest="2" BackgroundColor="#E5E5EA" VerticalOptions="Center"/>
+            <Frame x:Name="Step4Indicator"
+                   BackgroundColor="#E5E5EA"
+                   CornerRadius="16"
+                   WidthRequest="32"
+                   HeightRequest="32"
+                   Padding="0"
+                   HasShadow="False">
+                <Label Text="4" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" FontAttributes="Bold"/>
+            </Frame>
+        </HorizontalStackLayout>
+
+        <!-- 内容区域 -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout x:Name="WizardContent" Spacing="16" Padding="16">
+
+                <!-- 步骤1：选择班级 -->
+                <Frame x:Name="Step1Panel"
+                       BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                       CornerRadius="16"
+                       Padding="16"
+                       HasShadow="False">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="步骤 1：选择班级"
+                               FontAttributes="Bold"
+                               FontSize="18"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                        <Picker x:Name="ClassPicker"
+                                Title="选择班级"
+                                BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                        <Button Text="下一步"
+                                BackgroundColor="#007AFF"
+                                TextColor="White"
+                                CornerRadius="10"
+                                Clicked="OnStep1Next"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- 步骤2：选择作业 -->
+                <Frame x:Name="Step2Panel"
+                       BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                       CornerRadius="16"
+                       Padding="16"
+                       HasShadow="False"
+                       IsVisible="False">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="步骤 2：选择作业"
+                               FontAttributes="Bold"
+                               FontSize="18"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+
+                        <CollectionView x:Name="WizardJobsList"
+                                        HeightRequest="300">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                           CornerRadius="8"
+                                           Padding="12"
+                                           Margin="0,4"
+                                           HasShadow="False">
+                                        <Frame.Triggers>
+                                            <DataTrigger TargetType="Frame" Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#E5E5EA, Dark=#3A3A3C}"/>
+                                            </DataTrigger>
+                                        </Frame.Triggers>
+                                        <Frame.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnJobTapped"
+                                                                  CommandParameter="{Binding .}"/>
+                                        </Frame.GestureRecognizers>
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <VerticalStackLayout>
+                                                <Label Text="{Binding JobName}"
+                                                       FontAttributes="Bold"
+                                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                                                <Label Text="{Binding TimeRange}"
+                                                       FontSize="12"
+                                                       TextColor="#8E8E93"/>
+                                            </VerticalStackLayout>
+                                            <Frame Grid.Column="1"
+                                                   BackgroundColor="Transparent"
+                                                   CornerRadius="10"
+                                                   WidthRequest="20"
+                                                   HeightRequest="20"
+                                                   Padding="0"
+                                                   HasShadow="False">
+                                                <Label Text="&#xf00c;"
+                                                       FontFamily="FA6Solid"
+                                                       FontSize="12"
+                                                       TextColor="#007AFF"
+                                                       IsVisible="{Binding IsSelected}"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"/>
+                                            </Frame>
+                                        </Grid>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <Grid ColumnDefinitions="*,*">
+                            <Button Text="上一步"
+                                    Grid.Column="0"
+                                    BackgroundColor="#8E8E93"
+                                    TextColor="White"
+                                    CornerRadius="10"
+                                    Clicked="OnStep2Back"/>
+                            <Button x:Name="Step2NextBtn"
+                                    Text="下一步"
+                                    Grid.Column="1"
+                                    BackgroundColor="#007AFF"
+                                    TextColor="White"
+                                    CornerRadius="10"
+                                    IsEnabled="False"
+                                    Clicked="OnStep2Next"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- 步骤3：确认下载 -->
+                <Frame x:Name="Step3Panel"
+                       BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                       CornerRadius="16"
+                       Padding="16"
+                       HasShadow="False"
+                       IsVisible="False">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="步骤 3：确认下载"
+                               FontAttributes="Bold"
+                               FontSize="18"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label x:Name="ConfirmJobName"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                            <Label x:Name="ConfirmBookId"
+                                   FontSize="13"
+                                   TextColor="#8E8E93"
+                                   FontFamily="monospace"/>
+                            <Label x:Name="ConfirmTaskId"
+                                   FontSize="13"
+                                   TextColor="#8E8E93"
+                                   FontFamily="monospace"/>
+                            <Label x:Name="ConfirmFileId"
+                                   FontSize="13"
+                                   TextColor="#34C759"
+                                   FontFamily="monospace"/>
+                        </VerticalStackLayout>
+
+                        <ProgressBar x:Name="DownloadProgress"
+                                     IsVisible="False"
+                                     ProgressColor="#007AFF"/>
+
+                        <Grid ColumnDefinitions="*,*">
+                            <Button Text="上一步"
+                                    Grid.Column="0"
+                                    BackgroundColor="#8E8E93"
+                                    TextColor="White"
+                                    CornerRadius="10"
+                                    Clicked="OnStep3Back"/>
+                            <Button x:Name="Step3DownloadBtn"
+                                    Text="开始下载"
+                                    Grid.Column="1"
+                                    BackgroundColor="#34C759"
+                                    TextColor="White"
+                                    CornerRadius="10"
+                                    Clicked="OnStep3Download"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- 步骤4：完成 -->
+                <Frame x:Name="Step4Panel"
+                       BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                       CornerRadius="16"
+                       Padding="16"
+                       HasShadow="False"
+                       IsVisible="False">
+                    <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                        <Label Text="&#xf00c;"
+                               FontFamily="FA6Solid"
+                               FontSize="48"
+                               TextColor="#34C759"
+                               HorizontalOptions="Center"/>
+                        <Label Text="下载完成！"
+                               FontAttributes="Bold"
+                               FontSize="20"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                               HorizontalOptions="Center"/>
+                        <Label x:Name="ResultLabel"
+                               FontSize="14"
+                               TextColor="#8E8E93"
+                               HorizontalOptions="Center"/>
+                        <Button Text="去解析题目"
+                                BackgroundColor="#5856D6"
+                                TextColor="White"
+                                CornerRadius="10"
+                                Clicked="OnGoToParser"/>
+                        <Button Text="完成"
+                                BackgroundColor="#007AFF"
+                                TextColor="White"
+                                CornerRadius="10"
+                                Clicked="OnFinish"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- 底部日志 -->
+        <Frame Grid.Row="2"
+               BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+               CornerRadius="0"
+               Padding="12"
+               HasShadow="False">
+            <ScrollView HeightRequest="80">
+                <Label x:Name="LogLabel"
+                       FontSize="11"
+                       TextColor="#8E8E93"
+                       FontFamily="monospace"/>
+            </ScrollView>
+        </Frame>
+    </Grid>
+</ContentPage>
