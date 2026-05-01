@@ -206,10 +206,37 @@ public partial class EndToEndWizardPage : ContentPage
         }
     }
 
-    private async void OnFinish(object sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//DashboardPage");
-    }
+        private async void OnFinish(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("//DashboardPage");
+        }
+
+        private async void OnAutoComplete(object sender, EventArgs e)
+        {
+            if (_selectedJob == null)
+            {
+                await DisplayAlert("提示", "请先选择作业", "确定");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_selectedJob.BookId) || string.IsNullOrEmpty(_selectedJob.ContentId))
+            {
+                await DisplayAlert("错误", "缺少BookId或ContentId", "确定");
+                return;
+            }
+
+            var param = new Dictionary<string, object>
+            {
+                { "bookId", _selectedJob.BookId },
+                { "taskId", _selectedJob.ContentId },
+                { "courseId", _selectedJob.CourseId.ToString() },
+                { "chapterId", _selectedJob.ChapterId ?? "" },
+                { "pageId", _selectedJob.PageId ?? "" },
+                { "jobName", Uri.EscapeDataString(_selectedJob.JobName) }
+            };
+
+            await Shell.Current.GoToAsync(nameof(AutoCompletePage), param);
+        }
 
     private void SetStep(int step)
     {

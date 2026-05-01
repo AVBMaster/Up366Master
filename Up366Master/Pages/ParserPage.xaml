@@ -11,44 +11,57 @@
         <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,*">
-        <!-- 路径选择 -->
-        <VerticalStackLayout Grid.Row="0" Spacing="8" Padding="16">
-            <Grid ColumnDefinitions="*,Auto">
-                <Entry x:Name="PathEntry"
-                       Placeholder="选择 questions 文件夹路径"
-                       BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
-                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
-                <Button Grid.Column="1"
-                        Text="浏览"
-                        BackgroundColor="#007AFF"
-                        TextColor="White"
-                        CornerRadius="8"
-                        Clicked="OnBrowseClicked"/>
-            </Grid>
-            <!-- ★ 新增：导出答案按钮 -->
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                <Button Text="开始解析"
-                        BackgroundColor="#34C759"
-                        TextColor="White"
-                        CornerRadius="10"
-                        Clicked="OnParseClicked"/>
-                <Button Grid.Column="1"
-                        x:Name="ExportBtn"
-                        Text="导出答案"
-                        BackgroundColor="#5856D6"
-                        TextColor="White"
-                        CornerRadius="10"
-                        IsEnabled="False"
-                        Clicked="OnExportClicked"/>
-            </Grid>
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- 顶部工具栏 - 紧凑 -->
+        <VerticalStackLayout Grid.Row="0" Spacing="6" Padding="12,12,12,6">
+            <!-- 已下载作业列表 - 可视化选择 -->
+            <Frame x:Name="DownloadedJobsFrame"
+                   BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                   CornerRadius="8"
+                   Padding="12"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="请选择要解析的作业："
+                           FontSize="13"
+                           TextColor="#8E8E93"/>
+                    <CollectionView x:Name="DownloadedJobsList"
+                                    HeightRequest="120"
+                                    SelectionMode="Single"
+                                    SelectionChanged="OnDownloadedJobSelected">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                                       CornerRadius="6"
+                                       Padding="10,6"
+                                       Margin="0,2"
+                                       HasShadow="False">
+                                    <Label Text="{Binding}"
+                                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                           FontSize="13"/>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 解析按钮 -->
+            <Button Text="开始解析"
+                    BackgroundColor="#34C759"
+                    TextColor="White"
+                    CornerRadius="10"
+                    Clicked="OnParseClicked"/>
+
+            <!-- 隐藏的路径存储 -->
+            <Entry x:Name="PathEntry"
+                   IsVisible="False"/>
         </VerticalStackLayout>
 
-        <!-- 解析结果 -->
-        <CollectionView Grid.Row="1"
-                       x:Name="QuestionsCollection"
-                       EmptyView="暂无解析结果">
-            <CollectionView.ItemTemplate>
+        <!-- 解析结果 - 占用主要空间 -->
+        <ScrollView Grid.Row="1" Padding="8,0">
+            <CollectionView x:Name="QuestionsCollection"
+                           EmptyView="暂无解析结果">
+                <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
                            CornerRadius="12"
@@ -167,5 +180,17 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+        </ScrollView>
+
+        <!-- 底部导出按钮 -->
+        <Button Grid.Row="2"
+                x:Name="ExportBtn"
+                Text="导出答案"
+                BackgroundColor="#5856D6"
+                TextColor="White"
+                CornerRadius="10"
+                Margin="12,8"
+                IsEnabled="False"
+                Clicked="OnExportClicked"/>
     </Grid>
 </ContentPage>

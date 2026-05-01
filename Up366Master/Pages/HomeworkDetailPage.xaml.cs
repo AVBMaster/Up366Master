@@ -120,6 +120,12 @@ public partial class HomeworkDetailPage : ContentPage
             await ParseQuestions(item);
     }
 
+    private async void OnAutoCompleteSwipe(object sender, EventArgs e)
+    {
+        if (sender is SwipeItem swipe && swipe.BindingContext is JobDetailItem item)
+            await AutoComplete(item);
+    }
+
     private async Task ViewResourceChain(JobDetailItem item)
     {
         if (!ValidateIds(item)) return;
@@ -193,6 +199,7 @@ public partial class HomeworkDetailPage : ContentPage
             }
 
             item.ProgressValue = 1.0;
+            item.LastDownloadPath = folder;
             await DisplayAlert("完成", $"已保存到:\n{folder}", "确定");
         }
         catch (Exception ex) { await DisplayAlert("错误", ex.Message, "确定"); }
@@ -201,24 +208,14 @@ public partial class HomeworkDetailPage : ContentPage
 
     private async Task ParseQuestions(JobDetailItem item)
     {
-        var downloadsDir = Path.Combine(FileSystem.AppDataDirectory, "downloads");
-        if (!Directory.Exists(downloadsDir)) { await DisplayAlert("提示", "请先下载作业文件", "确定"); return; }
-
-        var dirs = Directory.GetDirectories(downloadsDir)
-            .Where(d => d.Contains(item.JobName[..Math.Min(item.JobName.Length, 10)]))
-            .OrderByDescending(d => new DirectoryInfo(d).LastWriteTime)
-            .ToList();
-
-        if (dirs.Count == 0) { await DisplayAlert("提示", "未找到下载文件，请先下载", "确定"); return; }
-
-        string? qPath = null;
-        foreach (var dir in dirs)
+        if (string.IsNullOrEmpty(item.LastDownloadPath))
         {
-            var candidate = Path.Combine(dir, "questions");
-            if (Directory.Exists(candidate)) { qPath = candidate; break; }
+            await DisplayAlert("提示", "请先下载作业文件", "确定");
+            return;
         }
 
-        if (qPath == null) { await DisplayAlert("错误", "未找到题目数据目录", "确定"); return; }
+        var qPath = Path.Combine(item.LastDownloadPath, "questions");
+        if (!Directory.Exists(qPath)) { await DisplayAlert("错误", "未找到题目数据目录", "确定"); return; }
 
         await Shell.Current.GoToAsync($"{nameof(ParserPage)}?path={Uri.EscapeDataString(qPath)}");
     }
@@ -249,4 +246,5 @@ public class JobDetailItem : JobDisplayItem
     public string ContentIdShort { get; set; } = string.Empty;
     public bool ShowProgress { get; set; }
     public double ProgressValue { get; set; }
+    public string? LastDownloadPath { get; set; }
 }

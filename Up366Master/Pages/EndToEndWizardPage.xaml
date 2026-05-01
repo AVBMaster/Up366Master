@@ -219,32 +219,37 @@
                        Padding="16"
                        HasShadow="False"
                        IsVisible="False">
-                    <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
-                        <Label Text="&#xf00c;"
-                               FontFamily="FA6Solid"
-                               FontSize="48"
-                               TextColor="#34C759"
-                               HorizontalOptions="Center"/>
-                        <Label Text="下载完成！"
-                               FontAttributes="Bold"
-                               FontSize="20"
-                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
-                               HorizontalOptions="Center"/>
-                        <Label x:Name="ResultLabel"
-                               FontSize="14"
-                               TextColor="#8E8E93"
-                               HorizontalOptions="Center"/>
-                        <Button Text="去解析题目"
-                                BackgroundColor="#5856D6"
-                                TextColor="White"
-                                CornerRadius="10"
-                                Clicked="OnGoToParser"/>
-                        <Button Text="完成"
-                                BackgroundColor="#007AFF"
-                                TextColor="White"
-                                CornerRadius="10"
-                                Clicked="OnFinish"/>
-                    </VerticalStackLayout>
+                     <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                         <Label Text="&#xf00c;"
+                                FontFamily="FA6Solid"
+                                FontSize="48"
+                                TextColor="#34C759"
+                                HorizontalOptions="Center"/>
+                         <Label Text="下载完成！"
+                                FontAttributes="Bold"
+                                FontSize="20"
+                                TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                HorizontalOptions="Center"/>
+                         <Label x:Name="ResultLabel"
+                                FontSize="14"
+                                TextColor="#8E8E93"
+                                HorizontalOptions="Center"/>
+                         <Button Text="⚡一键完成并提交"
+                                 BackgroundColor="#FF9500"
+                                 TextColor="White"
+                                 CornerRadius="10"
+                                 Clicked="OnAutoComplete"/>
+                         <Button Text="去解析题目"
+                                 BackgroundColor="#5856D6"
+                                 TextColor="White"
+                                 CornerRadius="10"
+                                 Clicked="OnGoToParser"/>
+                         <Button Text="完成"
+                                 BackgroundColor="#007AFF"
+                                 TextColor="White"
+                                 CornerRadius="10"
+                                 Clicked="OnFinish"/>
+                     </VerticalStackLayout>
                 </Frame>
 
             </VerticalStackLayout>

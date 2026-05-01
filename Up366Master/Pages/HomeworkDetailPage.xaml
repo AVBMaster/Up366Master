@@ -31,15 +31,18 @@
                     <DataTemplate>
                         <SwipeView>
                             <SwipeView.RightItems>
-                                <SwipeItems>
-                                    <SwipeItem Text="下载"
-                                               BackgroundColor="#007AFF"
-                                               Invoked="OnDownloadSwipe"/>
-                                    <SwipeItem Text="解析"
-                                               BackgroundColor="#5856D6"
-                                               Invoked="OnParseSwipe"/>
-                                </SwipeItems>
-                            </SwipeView.RightItems>
+                                 <SwipeItems>
+                                     <SwipeItem Text="下载"
+                                                BackgroundColor="#007AFF"
+                                                Invoked="OnDownloadSwipe"/>
+                                     <SwipeItem Text="解析"
+                                                BackgroundColor="#5856D6"
+                                                Invoked="OnParseSwipe"/>
+                                     <SwipeItem Text="⚡一键完成"
+                                                BackgroundColor="#FF9500"
+                                                Invoked="OnAutoCompleteSwipe"/>
+                                 </SwipeItems>
+                             </SwipeView.RightItems>
 
                             <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
                                    CornerRadius="12"

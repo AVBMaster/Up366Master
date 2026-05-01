@@ -86,23 +86,23 @@
                    TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
                    Margin="0,4,0,0"/>
 
-            <!-- 用时设置 -->
+<!-- 用时设置 -->
             <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
                    CornerRadius="12"
                    Padding="16"
                    Margin="0,4"
                    HasShadow="False">
-                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8">
+                <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8">
                     <Label Text="模拟用时"
                            TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
                            VerticalOptions="Center"
                            FontSize="15"/>
                     <Label x:Name="DurationLabel"
-                           Text="18 分钟"
-                           TextColor="#007AFF"
-                           FontAttributes="Bold"
-                           FontSize="16"
-                           Grid.Column="1"/>
+                            Text="18 分钟"
+                            TextColor="#007AFF"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            Grid.Column="1"/>
                     <Slider x:Name="DurationSlider"
                             Grid.Row="1"
                             Grid.ColumnSpan="2"
@@ -111,76 +111,34 @@
                             Value="18"
                             HeightRequest="40"
                             ValueChanged="OnDurationChanged"/>
-                    <Label Grid.Row="2"
-                           Grid.ColumnSpan="2"
-                           Text="⚠️ 程序将真实等待此时间后再提交，期间请勿关闭应用"
-                           FontSize="11"
-                           TextColor="#FF9500"/>
                 </Grid>
             </Frame>
 
-            <!-- 得分设置 -->
+            <!-- 目标得分 -->
             <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
                    CornerRadius="12"
                    Padding="16"
                    Margin="0,4"
                    HasShadow="False">
-                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8">
+                <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8">
                     <Label Text="目标得分"
                            TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
                            VerticalOptions="Center"
                            FontSize="15"/>
                     <Label x:Name="ScoreLabel"
-                           Text="95%"
-                           TextColor="#34C759"
-                           FontAttributes="Bold"
-                           FontSize="16"
-                           Grid.Column="1"/>
+                            Text="30 分"
+                            TextColor="#34C759"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            Grid.Column="1"/>
                     <Slider x:Name="ScoreSlider"
                             Grid.Row="1"
                             Grid.ColumnSpan="2"
-                            Minimum="60"
-                            Maximum="100"
-                            Value="95"
+                            Minimum="0"
+                            Maximum="30"
+                            Value="30"
                             HeightRequest="40"
                             ValueChanged="OnScoreChanged"/>
-                    <Label Grid.Row="2"
-                           Grid.ColumnSpan="2"
-                           Text="建议设置在90-98%之间，满分可能不自然"
-                           FontSize="11"
-                           TextColor="#8E8E93"/>
-                </Grid>
-            </Frame>
-
-            <!-- 错题设置 -->
-            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
-                   CornerRadius="12"
-                   Padding="16"
-                   Margin="0,4"
-                   HasShadow="False">
-                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8">
-                    <Label Text="故意答错数量"
-                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
-                           VerticalOptions="Center"
-                           FontSize="15"/>
-                    <Label x:Name="MissLabel"
-                           Text="1 题"
-                           TextColor="#FF9500"
-                           FontAttributes="Bold"
-                           FontSize="16"
-                           Grid.Column="1"/>
-                    <Stepper x:Name="MissStepper"
-                             Grid.Row="1"
-                             Grid.ColumnSpan="2"
-                             Minimum="0"
-                             Maximum="5"
-                             Value="1"
-                             ValueChanged="OnMissChanged"/>
-                    <Label Grid.Row="2"
-                           Grid.ColumnSpan="2"
-                           Text="模拟真实作答，避免全对引起怀疑"
-                           FontSize="11"
-                           TextColor="#8E8E93"/>
                 </Grid>
             </Frame>
 
@@ -269,7 +227,7 @@
 
                     <Button x:Name="CancelWaitBtn"
                             Text="取消等待"
-                            BackgroundColor="#8E8E93"
+                            BackgroundColor="YellowGreen"
                             TextColor="White"
                             CornerRadius="10"
                             HeightRequest="44"
@@ -315,12 +273,30 @@
                    HasShadow="False"
                    IsVisible="False">
                 <VerticalStackLayout Spacing="10">
-                    <Grid ColumnDefinitions="*,Auto">
+                    <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                         <Label Text="请求/响应日志"
                                FontAttributes="Bold"
                                FontSize="15"
                                TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
                         <Button Grid.Column="1"
+                                Text="查看"
+                                FontSize="12"
+                                BackgroundColor="#34C759"
+                                TextColor="White"
+                                CornerRadius="8"
+                                Padding="8,4"
+                                HeightRequest="32"
+                                Clicked="OnViewLogClicked"/>
+                        <Button Grid.Column="2"
+                                Text="分享"
+                                FontSize="12"
+                                BackgroundColor="#FF9500"
+                                TextColor="White"
+                                CornerRadius="8"
+                                Padding="8,4"
+                                HeightRequest="32"
+                                Clicked="OnShareLogClicked"/>
+                        <Button Grid.Column="3"
                                 Text="复制"
                                 FontSize="12"
                                 BackgroundColor="#007AFF"

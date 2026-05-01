@@ -1,5 +1,7 @@
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Devices.Sensors;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using Up366Net;
 using Up366Parser;
@@ -125,14 +127,7 @@ public partial class AutoCompletePage : ContentPage
 
     private void OnScoreChanged(object sender, ValueChangedEventArgs e)
     {
-        ScoreLabel.Text = $"{(int)e.NewValue}%";
-        if (TargetScoreLabel != null)
-            TargetScoreLabel.Text = $"{(int)e.NewValue}%";
-    }
-
-    private void OnMissChanged(object sender, ValueChangedEventArgs e)
-    {
-        MissLabel.Text = $"{(int)e.NewValue} 题";
+        ScoreLabel.Text = $"{(int)e.NewValue} 分";
     }
 
     // ★★★ 取消等待 ★★★
@@ -188,7 +183,7 @@ public partial class AutoCompletePage : ContentPage
             // 步骤0: 同步服务器时间
             var serverTime = await AppShell.Client.GetServerTimeAsync();
             var startTime = AppShell.Client.GetCalibratedTime();
-            Debug.WriteLine($"[AutoComplete] 服务器时间: {serverTime}, 开始时间: {startTime}");
+            Trace.WriteLine($"[AutoComplete] 服务器时间: {serverTime}, 开始时间: {startTime}");
 
             UpdateProgress(0.1, "正在获取资源链...");
             var chain = await AppShell.Client.GetTaskLinkedAsync(_bookId, _taskId);
@@ -218,10 +213,12 @@ public partial class AutoCompletePage : ContentPage
             var tempDir = Path.Combine(FileSystem.CacheDirectory, "autocomplete", Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(tempDir);
 
+            var hasPrefix2 = entries.Any(e => e.FileName.StartsWith("2/", StringComparison.OrdinalIgnoreCase));
             foreach (var entry in entries)
             {
-                if (!entry.FileName.StartsWith("2/", StringComparison.OrdinalIgnoreCase)) continue;
-                var relativePath = entry.FileName[2..];
+                var relativePath = entry.FileName;
+                if (hasPrefix2 && entry.FileName.StartsWith("2/", StringComparison.OrdinalIgnoreCase))
+                    relativePath = entry.FileName[2..];
                 var destPath = Path.Combine(tempDir, relativePath.Replace('/', Path.DirectorySeparatorChar));
                 var dir = Path.GetDirectoryName(destPath);
                 if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
@@ -237,7 +234,7 @@ public partial class AutoCompletePage : ContentPage
             }
 
             var questions = ListeningQuestionParser.ParseQuestionsFolder(questionsDir);
-            Debug.WriteLine($"[AutoComplete] 解析完成: 共 {questions.Count} 道题目");
+            Trace.WriteLine($"[AutoComplete] 解析完成: 共 {questions.Count} 道题目");
 
             if (questions.Count == 0)
             {
@@ -246,8 +243,9 @@ public partial class AutoCompletePage : ContentPage
                 return;
             }
 
-            // 生成答案
-            var allAnswers = GenerateAnswers(questions, (int)ScoreSlider.Value, (int)MissStepper.Value);
+            // 生成答案（目标得分，服务器percent固定为100）
+            var targetScore = (int)ScoreSlider.Value;
+            var allAnswers = GenerateAnswers(questions, targetScore);
             if (allAnswers.Count == 0)
             {
                 await DisplayAlert("错误", "未能生成答案", "确定");
@@ -255,22 +253,7 @@ public partial class AutoCompletePage : ContentPage
                 return;
             }
 
-            // ========== Phase 2: 预检（立即执行）==========
-            UpdateProgress(0.3, "正在预检...");
-            try
-            {
-                var questionIds = string.Join(",", allAnswers
-                    .Select(a => a.QuestionId)
-                    .Where(id => !string.IsNullOrEmpty(id))
-                    .Distinct());
-                await AppShell.Client.GetPhoneticWordAnalysisAsync(questionIds);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[AutoComplete] 预检失败（继续）: {ex.Message}");
-            }
-
-            // ========== Phase 3: 真实等待（关键！）==========
+            // ========== Phase 2: 等待（关键！）==========
             var targetEndTime = startTime + (_targetDurationMinutes * 60 * 1000);
             var remainingMs = targetEndTime - AppShell.Client.GetCalibratedTime();
 
@@ -291,7 +274,7 @@ public partial class AutoCompletePage : ContentPage
                 // 保持屏幕常亮
                 DeviceDisplay.KeepScreenOn = true;
 
-                Debug.WriteLine($"[AutoComplete] 开始等待 {remainingMs}ms ({remainingMs / 60000.0:F1}分钟)...");
+                Trace.WriteLine($"[AutoComplete] 开始等待 {remainingMs}ms ({remainingMs / 60000.0:F1}分钟)...");
 
                 // 更新等待进度
                 _ = UpdateWaitingProgressAsync(targetEndTime, _waitCts.Token);
@@ -303,7 +286,7 @@ public partial class AutoCompletePage : ContentPage
                 }
                 catch (TaskCanceledException)
                 {
-                    Debug.WriteLine("[AutoComplete] 等待被取消");
+                    Trace.WriteLine("[AutoComplete] 等待被取消");
                     DeviceDisplay.KeepScreenOn = false;
                     ResetUI();
                     return;
@@ -318,7 +301,7 @@ public partial class AutoCompletePage : ContentPage
                 });
             }
 
-            // ========== Phase 4: 提交（等待结束后立即执行）==========
+            // ========== Phase 3: 提交（等待结束后立即执行）==========
             UpdateProgress(0.8, "正在提交成绩...");
 
             // 重新校准时间戳（基于开始时间 + 随机分布）
@@ -338,26 +321,15 @@ public partial class AutoCompletePage : ContentPage
                 pageId: pageId,
                 questions: allAnswers,
                 durationMinutes: _targetDurationMinutes,
-                scorePercent: (int)ScoreSlider.Value,
+                scorePercent: 100, // percent固定为100
                 batchId: batchId,
                 studyTaskId: studyTaskId,
                 calibratedNow: AppShell.Client.GetCalibratedTime());
 
-            UpdateProgress(0.9, result ? "提交成功，刷新状态..." : "提交失败");
+            UpdateProgress(1.0, result ? "完成！" : "提交失败");
 
-            // 刷新状态
             if (result)
             {
-                try
-                {
-                    await AppShell.Client.GetPersonPracticeStatusAsync(batchId, _courseId);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"[AutoComplete] 状态刷新失败: {ex.Message}");
-                }
-
-                UpdateProgress(1.0, "完成！");
                 await DisplayAlert("完成",
                     $"作业已完成！\n目标用时：{_targetDurationMinutes}分钟\n实际用时：{actualDurationMs / 60000.0:F1}分钟",
                     "确定");
@@ -423,7 +395,7 @@ public partial class AutoCompletePage : ContentPage
 
     // ★★★ 生成答案 ★★★
     private List<Up366Net.QuestionAnswer> GenerateAnswers(
-        List<ListeningQuestion> questions, int targetScorePercent, int targetMissCount)
+        List<ListeningQuestion> questions, int targetScore)
     {
         var allAnswers = new List<Up366Net.QuestionAnswer>();
         int totalQuestions = 0;
@@ -433,12 +405,13 @@ public partial class AutoCompletePage : ContentPage
             totalQuestions += q.IsComposite && q.SubQuestions?.Count > 0 ? q.SubQuestions.Count : 1;
         }
 
-        int missCount = Math.Min(targetMissCount, totalQuestions - (int)(totalQuestions * targetScorePercent / 100.0));
+        // 根据目标得分计算正确题数
+        int correctCount = totalQuestions > 0 ? (int)(targetScore * totalQuestions / 30.0) : 0;
         var rng = new Random();
-        var missIndices = new HashSet<int>();
-        while (missIndices.Count < missCount)
+        var correctIndices = new HashSet<int>();
+        while (correctIndices.Count < correctCount)
         {
-            missIndices.Add(rng.Next(totalQuestions));
+            correctIndices.Add(rng.Next(totalQuestions));
         }
 
         int globalIdx = 0;
@@ -453,17 +426,17 @@ public partial class AutoCompletePage : ContentPage
 
                     if (correctOpt == null || subQ.Options == null || subQ.Options.Count == 0) continue;
 
-                    bool isMiss = missIndices.Contains(globalIdx++);
+                    bool isCorrect = correctIndices.Contains(globalIdx++);
                     allAnswers.Add(new Up366Net.QuestionAnswer
                     {
                         QuestionId = subQ.QuestionId ?? q.QuestionId,
                         ElementId = subQ.ElementId ?? q.ElementId ?? subQ.QuestionId ?? q.QuestionId,
                         QuestionType = 1,
                         FullScore = subQ.Score > 0 ? subQ.Score : (q.Score / Math.Max(q.SubQuestions.Count, 1)),
-                        UserAnswer = isMiss ? GetWrongAnswer(correctOpt.Id, subQ.Options) : correctOpt.Id,
+                        UserAnswer = isCorrect ? correctOpt.Id : GetWrongAnswer(correctOpt.Id, subQ.Options),
                         CorrectAnswer = correctOpt.Id,
-                        IsCorrect = !isMiss,
-                        Timestamp = 0, // 稍后校准
+                        IsCorrect = isCorrect,
+                        Timestamp = 0,
                         Order = 0
                     });
                 }
@@ -475,22 +448,23 @@ public partial class AutoCompletePage : ContentPage
 
                 if (correctOpt == null || q.Options == null || q.Options.Count == 0) continue;
 
-                bool isMiss = missIndices.Contains(globalIdx++);
+                bool isCorrect = correctIndices.Contains(globalIdx++);
                 allAnswers.Add(new Up366Net.QuestionAnswer
                 {
                     QuestionId = q.QuestionId,
                     ElementId = q.ElementId ?? q.QuestionId,
                     QuestionType = q.QuestionType,
                     FullScore = q.Score,
-                    UserAnswer = isMiss ? GetWrongAnswer(correctOpt.Id, q.Options) : correctOpt.Id,
+                    UserAnswer = isCorrect ? correctOpt.Id : GetWrongAnswer(correctOpt.Id, q.Options),
                     CorrectAnswer = correctOpt.Id,
-                    IsCorrect = !isMiss,
+                    IsCorrect = isCorrect,
                     Timestamp = 0,
                     Order = 0
                 });
             }
         }
 
+        Trace.WriteLine($"[GenerateAnswers] 共{totalQuestions}题，目标{correctCount}题正确");
         return allAnswers;
     }
 
@@ -534,8 +508,90 @@ public partial class AutoCompletePage : ContentPage
             await DisplayAlert("提示", "暂无日志", "确定");
             return;
         }
-        await Clipboard.SetTextAsync(log);
-        await DisplayAlert("成功", "日志已复制到剪贴板", "确定");
+
+        var logFilePath = await SaveLogToFileAsync(log);
+        if (!string.IsNullOrEmpty(logFilePath))
+        {
+            var fileName = Path.GetFileName(logFilePath);
+            await Clipboard.SetTextAsync(logFilePath);
+            await DisplayAlert("成功", $"日志已保存到:\n{fileName}\n\n路径已复制到剪贴板", "确定");
+        }
+    }
+
+    private async Task<string> SaveLogToFileAsync(string log)
+    {
+        try
+        {
+            var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Up366Master", "logs");
+            Directory.CreateDirectory(logDir);
+            var logFilePath = Path.Combine(logDir, $"autocomplete_{DateTime.Now:yyyyMMdd_HHmmss}.log");
+
+            var fullLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] AutoCompletePage Log Export\n" +
+                        $"========================================\n" +
+                        log + "\n";
+
+            await File.WriteAllTextAsync(logFilePath, fullLog);
+            return logFilePath;
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    private async void OnViewLogClicked(object sender, EventArgs e)
+    {
+        var logFilePath = await GetTodayLogFilePathAsync();
+        if (string.IsNullOrEmpty(logFilePath))
+        {
+            await DisplayAlert("提示", "暂无日志文件", "确定");
+            return;
+        }
+
+        var logContent = await File.ReadAllTextAsync(logFilePath);
+        await DisplayAlert("日志内容", logContent, "确定");
+    }
+
+    private async void OnShareLogClicked(object sender, EventArgs e)
+    {
+        var logFilePath = await GetTodayLogFilePathAsync();
+        if (string.IsNullOrEmpty(logFilePath))
+        {
+            await DisplayAlert("提示", "暂无日志文件", "确定");
+            return;
+        }
+
+        await Share.RequestAsync(new ShareFileRequest
+        {
+            Title = "分享日志",
+            File = new ShareFile(logFilePath)
+        });
+    }
+
+    private async Task<string> GetTodayLogFilePathAsync()
+    {
+        try
+        {
+            var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Up366Master", "logs");
+            if (!Directory.Exists(logDir)) return string.Empty;
+
+            var todayFiles = Directory.GetFiles(logDir, "autocomplete_*.log")
+                .OrderByDescending(f => f)
+                .Take(1);
+
+            foreach (var file in todayFiles)
+            {
+                var fileInfo = new FileInfo(file);
+                if (fileInfo.CreationTime.Date == DateTime.Today)
+                    return file;
+            }
+
+            return string.Empty;
+        }
+        catch
+        {
+            return string.Empty;
+        }
     }
 
     private static string Truncate(string value, int max) =>

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Text;
 using CommunityToolkit.Maui.Storage;
 using Up366Parser;
@@ -28,28 +29,84 @@ public partial class ParserPage : ContentPage
         InitializeComponent();
         QuestionsCollection.ItemsSource = _questions;
         PathEntry.Text = Path.Combine(FileSystem.AppDataDirectory, "downloads");
+        LoadDownloadedJobs();
     }
 
-    private async void OnBrowseClicked(object sender, EventArgs e)
+    private void LoadDownloadedJobs()
     {
         try
         {
-            var result = await FolderPicker.Default.PickAsync(CancellationToken.None);
-
-            if (result.IsSuccessful && result.Folder is not null)
+            var downloadsPath = Path.Combine(FileSystem.AppDataDirectory, "downloads");
+            if (!Directory.Exists(downloadsPath))
             {
-                PathEntry.Text = result.Folder.Path;
+                DownloadedJobsFrame.IsVisible = false;
+                return;
             }
-            else if (result.Exception is not null)
+
+            var folders = Directory.GetDirectories(downloadsPath)
+                .Select(Path.GetFileName)
+                .Where(name => !string.IsNullOrEmpty(name))
+                .OrderByDescending(name => Directory.GetLastWriteTime(Path.Combine(downloadsPath, name)))
+                .ToList();
+
+            if (folders.Count > 0)
             {
-                await DisplayAlert("错误", $"选择文件夹失败: {result.Exception.Message}", "确定");
+                DownloadedJobsList.ItemsSource = folders;
+                DownloadedJobsFrame.IsVisible = true;
+            }
+            else
+            {
+                DownloadedJobsFrame.IsVisible = false;
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("错误", $"打开文件夹选择器失败: {ex.Message}", "确定");
+            Debug.WriteLine($"[ParserPage] 加载已下载作业失败: {ex.Message}");
+            DownloadedJobsFrame.IsVisible = false;
         }
     }
+
+    private void OnDownloadedJobSelected(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is string folderName)
+        {
+            var downloadsPath = Path.Combine(FileSystem.AppDataDirectory, "downloads");
+            var folderPath = Path.Combine(downloadsPath, folderName);
+
+            var qPath = Path.Combine(folderPath, "questions");
+            if (Directory.Exists(qPath))
+            {
+                PathEntry.Text = qPath;
+            }
+            else
+            {
+                PathEntry.Text = folderPath;
+            }
+        }
+    }
+
+    // 已弃用：使用可视化的已下载作业列表选择
+    #pragma warning disable CS0414 // 注释未使用的私有方法
+    // private async void OnBrowseClicked(object sender, EventArgs e)
+    // {
+    //     try
+    //     {
+    //         var result = await FolderPicker.Default.PickAsync(CancellationToken.None);
+    //         if (result.IsSuccessful && result.Folder is not null)
+    //         {
+    //             PathEntry.Text = result.Folder.Path;
+    //         }
+    //         else if (result.Exception is not null)
+    //         {
+    //             await DisplayAlert("错误", $"选择文件夹失败: {result.Exception.Message}", "确定");
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         await DisplayAlert("错误", $"打开文件夹选择器失败: {ex.Message}", "确定");
+    //     }
+    // }
+    #pragma warning restore CS0414
 
     private async void OnParseClicked(object sender, EventArgs e)
     {

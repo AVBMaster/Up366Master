@@ -26,6 +26,15 @@ namespace Up366Net
         private static readonly string ClientId = "7DE08EE71FBD3DA75A260946416B7188DBE077E4";
         private readonly bool _includeOptionalLoggingHeaders;
         private static readonly string UserAgent = "PC-Up366-Student 6.11.0";
+        private static readonly string LogFilePath;
+        private static readonly object _logFileLock = new();
+
+        static Up366Client()
+        {
+            var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Up366Net", "logs");
+            Directory.CreateDirectory(logDir);
+            LogFilePath = Path.Combine(logDir, $"autocomplete_{DateTime.Now:yyyyMMdd_HHmmss}.log");
+        }
 
         public SessionContext Session => _session;
         public bool IsAuthenticated => _session?.Up366C != null;
@@ -61,12 +70,52 @@ namespace Up366Net
             {
                 _httpClient.DefaultRequestHeaders.Add("clientid", ClientId);
             }
+
+            LogToFile($"[Init] 日志文件: {LogFilePath}");
         }
 
         private void Log(string message)
         {
             System.Diagnostics.Debug.WriteLine($"[Up366Net] {message}");
             LogAdded?.Invoke(message);
+            LogToFile(message);
+        }
+
+        private void LogToFile(string message)
+        {
+            try
+            {
+                lock (_logFileLock)
+                {
+                    var logLine = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] {message}";
+                    File.AppendAllText(LogFilePath, logLine + Environment.NewLine);
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        private void LogException(Exception ex, string context = "")
+        {
+            var sb = new StringBuilder();
+            if (!string.IsNullOrEmpty(context))
+            {
+                sb.AppendLine($"[Error Context] {context}");
+            }
+            sb.AppendLine($"[Exception] {ex.GetType().Name}: {ex.Message}");
+            sb.AppendLine($"[StackTrace] {ex.StackTrace}");
+
+            if (ex.InnerException != null)
+            {
+                sb.AppendLine($"[InnerException] {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
+                sb.AppendLine($"[InnerStackTrace] {ex.InnerException.StackTrace}");
+            }
+
+            var logMsg = sb.ToString();
+            System.Diagnostics.Debug.WriteLine($"[Up366Net] {logMsg}");
+            LogAdded?.Invoke(logMsg);
+            LogToFile(logMsg);
         }
 
         #region Step 1: 发送验证码
@@ -76,8 +125,8 @@ namespace Up366Net
             if (string.IsNullOrWhiteSpace(mobile))
                 throw new ArgumentException("手机号不能为空", nameof(mobile));
 
-            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            var ut = GenerateUt(mobile, timestamp, secret);
+            // 使用固定的ut值（与CLI一致）
+            var ut = "7a8fc3eea5d7ec1788ac457375c38718c6627502a42163c681a10c466d596683";
 
             var url = $"https://user-api.up366.cn/front/user/verify/send?checkExists=2&mobile={Uri.EscapeDataString(mobile)}&ut={ut}";
 
@@ -95,14 +144,19 @@ namespace Up366Net
             return result?.Result?.Code == 0;
         }
 
-        private string GenerateUt(string mobile, long timestamp, string secret)
-        {
-            return "d2ea46a3d1659b0d66ee9ac459d63b2130218a7b4c16882eac6b9b67eb5ab603";
-        }
-
         #endregion
 
         #region Step 2: 校验验证码
+
+        // 内部使用：用于已登录后的其他API调用
+        private string GenerateUt(string mobile, long timestamp, string secret)
+        {
+            // 生成与时间戳相关的ut签名（非验证码场景使用）
+            var input = $"{timestamp}";
+            using var sha = System.Security.Cryptography.SHA256.Create();
+            var hash = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(input));
+            return Convert.ToHexString(hash).ToLowerInvariant();
+        }
 
         public async Task<SessionContext> VerifyCodeAsync(string mobile, string verifyCode, CancellationToken cancellationToken = default)
         {
@@ -133,7 +187,11 @@ namespace Up366Net
             var result = JsonSerializer.Deserialize<ApiResponse<VerifyCodeResponse>>(responseContent, GetJsonOptions());
 
             if (result?.Result?.Code != -26 && result?.Result?.Code != 0)
-                throw new Up366Exception($"验证码校验失败: {result?.Result?.Msg}", result?.Result?.Code ?? -1);
+            {
+                var msg = $"验证码校验失败: {result?.Result?.Msg}";
+                LogException(new Up366Exception(msg, result?.Result?.Code ?? -1), "[VerifyCode]");
+                throw new Up366Exception(msg, result?.Result?.Code ?? -1);
+            }
 
             _session = new SessionContext
             {
@@ -451,7 +509,9 @@ namespace Up366Net
                     return location;
             }
 
-            throw new Up366Exception($"获取下载链接失败，状态码: {response.StatusCode}");
+            var ex = new Up366Exception($"获取下载链接失败，状态码: {response.StatusCode}");
+            LogException(ex, "[GetDownloadUrl]");
+            throw ex;
         }
 
         public async Task<byte[]> DownloadFileAsync(string pcFileId, CancellationToken cancellationToken = default)
@@ -580,7 +640,6 @@ namespace Up366Net
             // 计算实际得分
             var totalScore = questions.Sum(q => q.FullScore);
             var userScore = questions.Where(q => q.IsCorrect).Sum(q => q.FullScore);
-            var actualPercent = questions.Count > 0 ? (int)(questions.Count(q => q.IsCorrect) * 100.0 / questions.Count) : 0;
 
             var actualBatchId = batchId ?? Guid.NewGuid().ToString("N");
             var actualStudyTaskId = studyTaskId ?? taskId;
@@ -589,6 +648,7 @@ namespace Up366Net
             var qstJson = new List<object>();
             int orderIdx = 1;
 
+            // 先处理普通题目（question_type != 99）
             foreach (var q in questions.Where(q => q.QuestionType != 99))
             {
                 // elementAttr 必须是 JSON 字符串，且字段名与抓包完全一致
@@ -596,30 +656,64 @@ namespace Up366Net
                 {
                     ["question_id"] = q.QuestionId ?? "",
                     ["question_type"] = q.QuestionType,
-                    ["order"] = q.Order > 0 ? q.Order : orderIdx,
+                    ["order"] = orderIdx,
                     ["user_score"] = q.IsCorrect ? q.FullScore : 0,
                     ["user_answer"] = q.UserAnswer ?? "",
                     ["answer"] = q.CorrectAnswer ?? "",
                     ["score"] = q.FullScore,
                     ["result"] = q.IsCorrect ? 1 : 2,
                     ["timestamp"] = q.Timestamp > 0 ? q.Timestamp : (now - Random.Shared.Next(5000, 60000)),
-                    ["wrongnote_flag"] = 1  // 抓包中全是1
+                    ["wrongnote_flag"] = 1
                 };
 
                 // 手动序列化，确保与抓包格式一致
                 var elementAttrJson = JsonSerializer.Serialize(elementAttrDict, new JsonSerializerOptions
                 {
-                    PropertyNamingPolicy = null  // 保持原样
+                    PropertyNamingPolicy = null
                 });
 
-                qstJson.Add(new
+                qstJson.Add(new Dictionary<string, object>
                 {
-                    pageId = pageId ?? "",
-                    elementId = q.ElementId ?? q.QuestionId ?? "",
-                    elementType = 1,
-                    elementAttr = elementAttrJson,
-                    addTime = now - 16,  // 比 studyDate 稍早
-                    order = orderIdx++
+                    ["pageId"] = pageId ?? "",
+                    ["elementId"] = q.ElementId ?? q.QuestionId ?? "",
+                    ["elementType"] = 1,
+                    ["elementAttr"] = elementAttrJson,
+                    ["addTime"] = now - 16,
+                    ["order"] = orderIdx
+                });
+                orderIdx++;
+            }
+
+            // 再处理特殊题目（question_type == 99），order从1开始
+            foreach (var q in questions.Where(q => q.QuestionType == 99))
+            {
+                var elementAttrDict = new Dictionary<string, object>
+                {
+                    ["question_id"] = q.QuestionId ?? "",
+                    ["question_type"] = q.QuestionType,
+                    ["order"] = 1,
+                    ["user_score"] = 0,
+                    ["user_answer"] = "",
+                    ["answer"] = "",
+                    ["score"] = q.FullScore,
+                    ["result"] = -1,
+                    ["timestamp"] = q.Timestamp > 0 ? q.Timestamp : now,
+                    ["wrongnote_flag"] = 1
+                };
+
+                var elementAttrJson = JsonSerializer.Serialize(elementAttrDict, new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = null
+                });
+
+                qstJson.Add(new Dictionary<string, object>
+                {
+                    ["pageId"] = pageId ?? "",
+                    ["elementId"] = q.ElementId ?? q.QuestionId ?? "",
+                    ["elementType"] = 1,
+                    ["elementAttr"] = elementAttrJson,
+                    ["addTime"] = now - 16,
+                    ["order"] = 1
                 });
             }
 
@@ -633,7 +727,7 @@ namespace Up366Net
                 ["chapterId"] = chapterId ?? "",
                 ["taskNo"] = 1,
                 ["score"] = userScore,
-                ["percent"] = actualPercent,
+                ["percent"] = 100,
                 ["studyDate"] = now,
                 ["seconds"] = seconds,
                 ["result"] = "",
@@ -655,10 +749,11 @@ namespace Up366Net
 
             var tasksJsonRaw = JsonSerializer.Serialize(new[] { taskObj }, new JsonSerializerOptions
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.Never
             });
 
-            var ut = GenerateUt(string.Empty, now, null);
+            var ut = "dbf593abb373c775628175e63c76df9af1ca9eb2ab6655f90c3330e420f84ed3"; //使用固定值即可
 
             Log("========== 提交作业评分请求 ==========");
             Log($"URL: {url}");
@@ -676,7 +771,7 @@ namespace Up366Net
                 ["ut"] = ut
             });
 
-            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+using var request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Content = content;
             AddCommonHeaders(request, Guid.NewGuid().ToString("N"));
             AddAuthCookies(request);
@@ -684,11 +779,8 @@ namespace Up366Net
             request.Headers.Add("Referer", "https://student.up366.cn/");
             request.Headers.Add("X-Requested-With", "XMLHttpRequest");
             request.Headers.Add("x-requested-with", "PC");
-
             if (!string.IsNullOrEmpty(Session.Tgt))
-            {
-                request.Headers.TryAddWithoutValidation("u3t", Session.Tgt);
-            }
+                request.Headers.TryAddWithoutValidation("authorization", Session.Tgt);
 
             Log("========== 发送请求 ==========");
             var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -714,7 +806,11 @@ namespace Up366Net
             var pcFileId = ExtractPcFileId(chain);
 
             if (string.IsNullOrEmpty(pcFileId))
-                throw new Up366Exception("未找到PC文件ID");
+            {
+                var ex = new Up366Exception("未找到PC文件ID");
+                LogException(ex, "[GetTaskQuestionsData]");
+                throw ex;
+            }
 
             var entries = await DownloadAndExtractAsync(pcFileId, cancellationToken);
 
@@ -722,7 +818,11 @@ namespace Up366Net
                 e.FileName.Contains("/questions/") && e.FileName.EndsWith("questionData.js"));
 
             if (questionsEntry == null)
-                throw new Up366Exception("未找到题目数据文件");
+            {
+                var ex = new Up366Exception("未找到题目数据文件");
+                LogException(ex, "[GetTaskQuestionsData]");
+                throw ex;
+            }
 
             return System.Text.Encoding.UTF8.GetString(questionsEntry.Content);
         }
@@ -815,42 +915,12 @@ namespace Up366Net
                 answers[i].Order = i + 1;
             }
 
-            // 步骤1: 调用 phonetic-word/analysis 预检
-            Log("[AutoCompleteTask] 步骤1: phonetic-word/analysis 预检...");
-            try
-            {
-                var questionIds = string.Join(",", answers
-                    .Where(a => !string.IsNullOrEmpty(a.QuestionId) && a.QuestionType != 99)
-                    .Select(a => a.QuestionId)
-                    .Distinct());
-
-                await GetPhoneticWordAnalysisAsync(questionIds, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                Log($"[AutoCompleteTask] 预检接口调用失败（继续）: {ex.Message}");
-            }
-
-            // 步骤2: 提交成绩（使用校准后的时间）
-            Log("[AutoCompleteTask] 步骤2: 提交成绩...");
+            // 步骤1: 提交成绩（使用校准后的时间）
+            Log("[AutoCompleteTask] 步骤1: 提交成绩...");
             var success = await SubmitTaskScoreAsync(
                 taskId, bookId, chapterId, courseId, pageId,
                 answers, durationMinutes, scorePercent,
                 batchId, studyTaskId, now, cancellationToken); // 传入校准后的 now
-
-            // 步骤3: 调用 person-practice/status 刷新状态
-            if (success)
-            {
-                Log("[AutoCompleteTask] 步骤3: person-practice/status 刷新...");
-                try
-                {
-                    await GetPersonPracticeStatusAsync(batchId, courseId, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    Log($"[AutoCompleteTask] 状态刷新接口调用失败（忽略）: {ex.Message}");
-                }
-            }
 
             var actualScore = answers.Where(a => a.IsCorrect).Sum(a => a.FullScore);
             var actualPercent = answers.Count > 0 ? (int)(answers.Count(a => a.IsCorrect) * 100.0 / answers.Count) : 0;
@@ -926,13 +996,17 @@ namespace Up366Net
 
         private void AddCommonHeaders(HttpRequestMessage request, string u3r)
         {
-            if (_includeOptionalLoggingHeaders && !string.IsNullOrEmpty(u3r))
+            if (!string.IsNullOrEmpty(u3r))
             {
-                request.Headers.Add("u3r", u3r);
+                request.Headers.TryAddWithoutValidation("u3r", u3r);
             }
             request.Headers.Add("Accept-Encoding", "gzip, deflate, br");
             request.Headers.Add("Accept-Language", "zh-CN");
             request.Headers.Add("Cache-Control", "no-cache");
+            request.Headers.Add("Sec-Fetch-Mode", "no-cors");
+            request.Headers.Add("Sec-Fetch-Dest", "empty");
+            request.Headers.Add("x-app-name", "student-pc");
+            request.Headers.TryAddWithoutValidation("clientid", "7DE08EE71FBD3DA75A260946416B7188DBE077E4");
         }
 
         private void AddAuthCookies(HttpRequestMessage request)
