@@ -59,7 +59,7 @@
                         </VerticalStackLayout>
                         <VerticalStackLayout Grid.Column="1" Spacing="4">
                             <Label Text="预计用时" FontSize="12" TextColor="#8E8E93"/>
-                            <Label x:Name="TargetDurationLabel" Text="18分钟" FontSize="20" FontAttributes="Bold" TextColor="#007AFF"/>
+                            <Label x:Name="TargetDurationLabel" Text="立即" FontSize="20" FontAttributes="Bold" TextColor="#007AFF"/>
                         </VerticalStackLayout>
                     </Grid>
 
@@ -98,7 +98,7 @@
                            VerticalOptions="Center"
                            FontSize="15"/>
                     <Label x:Name="DurationLabel"
-                            Text="18 分钟"
+                            Text="立即"
                             TextColor="#007AFF"
                             FontAttributes="Bold"
                             FontSize="16"
@@ -106,9 +106,9 @@
                     <Slider x:Name="DurationSlider"
                             Grid.Row="1"
                             Grid.ColumnSpan="2"
-                            Minimum="5"
+                            Minimum="0"
                             Maximum="60"
-                            Value="18"
+                            Value="0"
                             HeightRequest="40"
                             ValueChanged="OnDurationChanged"/>
                 </Grid>

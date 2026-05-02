@@ -31,9 +31,19 @@ namespace Up366Net
 
         static Up366Client()
         {
-            var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Up366Net", "logs");
-            Directory.CreateDirectory(logDir);
-            LogFilePath = Path.Combine(logDir, $"autocomplete_{DateTime.Now:yyyyMMdd_HHmmss}.log");
+            try
+            {
+                // 使用更通用的跨平台路径
+                var baseDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                var logDir = Path.Combine(baseDir, "Up366Net", "logs");
+                Directory.CreateDirectory(logDir);
+                LogFilePath = Path.Combine(logDir, $"autocomplete_{DateTime.Now:yyyyMMdd_HHmmss}.log");
+            }
+            catch
+            {
+                // 如果失败，使用临时目录
+                LogFilePath = Path.Combine(Path.GetTempPath(), $"autocomplete_{DateTime.Now:yyyyMMdd_HHmmss}.log");
+            }
         }
 
         public SessionContext Session => _session;
@@ -606,6 +616,144 @@ namespace Up366Net
 
         #endregion
 
+        #region ★★★ 新增：获取已完成任务列表 ★★★
+
+        public async Task<string> GetFinishedTaskListAsync(string bookId, CancellationToken cancellationToken = default)
+        {
+            EnsureAuthenticated();
+
+            if (string.IsNullOrEmpty(bookId)) return "{}";
+
+            var url = $"https://dsb-api.up366.cn/client/book/finished-task/list?bookId={Uri.EscapeDataString(bookId)}";
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            AddCommonHeaders(request, Guid.NewGuid().ToString("N"));
+            AddAuthCookies(request);
+            request.Headers.Add("Referer", "https://student.up366.cn/");
+            request.Headers.Add("x-requested-with", "PC");
+
+            Log($"[FinishedTaskList] GET {url}");
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            Log($"[FinishedTaskList] Response: {content}");
+
+            return content;
+        }
+
+        #endregion
+
+        #region ★★★ 新增：获取任务资源链（浏览器方式） ★★★
+
+        public async Task<string> GetTaskLinkedBrowserAsync(string bookId, string taskId, CancellationToken cancellationToken = default)
+        {
+            EnsureAuthenticated();
+
+            if (string.IsNullOrEmpty(bookId) || string.IsNullOrEmpty(taskId)) return "{}";
+
+            var url = "https://book-api.up366.cn/client/task/linked";
+            var body = $"bookId={Uri.EscapeDataString(bookId)}&type=1&taskId={Uri.EscapeDataString(taskId)}";
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Content = new StringContent(body, Encoding.UTF8, "application/x-www-form-urlencoded");
+            AddCommonHeaders(request, Guid.NewGuid().ToString("N"));
+            AddAuthCookies(request);
+            request.Headers.Add("Referer", "https://student.up366.cn/");
+            request.Headers.Add("x-requested-with", "XMLHttpRequest");
+
+            Log($"[TaskLinkedBrowser] POST {url} body: {body}");
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            Log($"[TaskLinkedBrowser] Response: {content[..Math.Min(500, content.Length)]}...");
+
+            return content;
+        }
+
+        #endregion
+
+        #region ★★★ 新增：获取任务资源链（客户端方式） ★★★
+
+        public async Task<string> GetTaskLinkedClientAsync(string bookId, string taskId, CancellationToken cancellationToken = default)
+        {
+            EnsureAuthenticated();
+
+            if (string.IsNullOrEmpty(bookId) || string.IsNullOrEmpty(taskId)) return "{}";
+
+            var url = "https://book-api.up366.cn/client/task/linked";
+            var body = $"bookId={Uri.EscapeDataString(bookId)}&taskId={Uri.EscapeDataString(taskId)}&type=1";
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Content = new StringContent(body, Encoding.UTF8, "application/x-www-form-urlencoded");
+            AddCommonHeaders(request, Guid.NewGuid().ToString("N"));
+            AddAuthCookies(request);
+            request.Headers.Add("x-app-name", "student-pc");
+            request.Headers.Add("x-requested-with", "PC");
+
+            var clientId = "7DE08EE71FBD3DA75A260946416B7188DBE077E4";
+            request.Headers.Add("clientid", clientId);
+
+            // if (_u3Token != null) // 原有方式
+            // {
+            //     request.Headers.Add("u3r", _u3Token);
+            //     request.Headers.Add("u3t", _u3Token);
+            // }
+            if (_session?.Tgt != null) // 使用session中的Tgt
+            {
+                request.Headers.Add("u3r", _session.Tgt);
+                request.Headers.Add("u3t", _session.Tgt);
+            }
+
+            Log($"[TaskLinkedClient] POST {url} body: {body}");
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            Log($"[TaskLinkedClient] Response: {content[..Math.Min(500, content.Length)]}...");
+
+            return content;
+        }
+
+        #endregion
+
+        #region ★★★ 新增：获取已购买书籍列表 ★★★
+
+        public async Task<string> GetPurchasedBooksAsync(CancellationToken cancellationToken = default)
+        {
+            EnsureAuthenticated();
+
+            var url = "https://book-api.up366.cn/client/books/buy-book";
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            AddCommonHeaders(request, Guid.NewGuid().ToString("N"));
+            AddAuthCookies(request);
+            request.Headers.Add("x-app-name", "student-pc");
+            request.Headers.Add("x-requested-with", "PC");
+
+            var clientId = "7DE08EE71FBD3DA75A260946416B7188DBE077E4";
+            request.Headers.Add("clientid", clientId);
+
+            // if (_u3Token != null) // 原有方式
+            // {
+            //     request.Headers.Add("u3r", _u3Token);
+            //     request.Headers.Add("u3t", _u3Token);
+            // }
+            if (_session?.Tgt != null) // 使用session中的Tgt
+            {
+                request.Headers.Add("u3r", _session.Tgt);
+                request.Headers.Add("u3t", _session.Tgt);
+            }
+
+            Log($"[PurchasedBooks] POST {url}");
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            Log($"[PurchasedBooks] Response: {content[..Math.Min(500, content.Length)]}...");
+
+            return content;
+        }
+
+        #endregion
+
         #region Step 9: 提交作业评分（★★★ 完全重写，严格匹配抓包格式 ★★★）
 
         public async Task<bool> SubmitTaskScoreAsync(
@@ -737,10 +885,8 @@ namespace Up366Net
                 ["msg"] = "",
                 ["studyTaskId"] = actualStudyTaskId,
                 ["courseId"] = courseId ?? "",
-                ["extendParams"] = new Dictionary<string, string>
-                {
-                    ["batchId"] = actualBatchId
-                },
+                // ["extendParams"] = new Dictionary<string, string> { ["batchId"] = actualBatchId }, // 原格式
+                ["extendParams"] = new Dictionary<string, object>(), // 空对象，与抓包一致
                 ["qstJson"] = qstJson,
                 ["failed"] = 0,
                 ["killStudyTask"] = null,

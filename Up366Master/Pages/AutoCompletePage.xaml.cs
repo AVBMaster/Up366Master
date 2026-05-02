@@ -119,10 +119,12 @@ public partial class AutoCompletePage : ContentPage
 
     private void OnDurationChanged(object sender, ValueChangedEventArgs e)
     {
-        DurationLabel.Text = $"{(int)e.NewValue} 分钟";
+        var mins = (int)e.NewValue;
+        var displayText = mins == 0 ? "立即" : $"{mins} 分钟";
+        DurationLabel.Text = displayText;
         if (TargetDurationLabel != null)
-            TargetDurationLabel.Text = $"{(int)e.NewValue}分钟";
-        _targetDurationMinutes = (int)e.NewValue;
+            TargetDurationLabel.Text = mins == 0 ? "立即" : $"{mins}分钟";
+        _targetDurationMinutes = mins;
     }
 
     private void OnScoreChanged(object sender, ValueChangedEventArgs e)
@@ -156,11 +158,12 @@ public partial class AutoCompletePage : ContentPage
         }
 
         _targetDurationMinutes = (int)DurationSlider.Value;
+        var waitDesc = _targetDurationMinutes == 0 ? "立即提交" : $"真实等待 {_targetDurationMinutes} 分钟后再提交";
 
         var confirm = await DisplayAlert("确认执行",
             $"即将自动完成作业：\n{_jobName}\n\n" +
             $"⚠️ 重要提示：\n" +
-            $"• 程序将真实等待 {_targetDurationMinutes} 分钟后再提交\n" +
+            $"• 程序将 {waitDesc}\n" +
             $"• 期间请保持应用在前台运行\n" +
             $"• 请勿关闭屏幕或切换应用\n" +
             $"• 建议连接充电器\n\n" +
@@ -205,6 +208,22 @@ public partial class AutoCompletePage : ContentPage
                 chapterId = chain?.Chapters?.FirstOrDefault(c => c.IsContent == 1)?.Id ?? "";
             if (string.IsNullOrEmpty(pageId))
                 pageId = chain?.Tasks?.FirstOrDefault()?.PcPageId ?? "";
+
+            UpdateProgress(0.08, "正在获取任务链接(浏览器)...");
+            var linkedBrowser = await AppShell.Client.GetTaskLinkedBrowserAsync(_bookId, _taskId);
+            Trace.WriteLine($"[AutoComplete] TaskLinkedBrowser: {linkedBrowser}");
+
+            UpdateProgress(0.12, "正在获取任务链接(客户端)...");
+            var linkedClient = await AppShell.Client.GetTaskLinkedClientAsync(_bookId, _taskId);
+            Trace.WriteLine($"[AutoComplete] TaskLinkedClient: {linkedClient}");
+
+            UpdateProgress(0.14, "正在获取已购买书籍...");
+            var purchasedBooks = await AppShell.Client.GetPurchasedBooksAsync();
+            Trace.WriteLine($"[AutoComplete] PurchasedBooks: {purchasedBooks}");
+
+            UpdateProgress(0.15, "正在获取已完成任务列表...");
+            var finishedResult = await AppShell.Client.GetFinishedTaskListAsync(_bookId);
+            Trace.WriteLine($"[AutoComplete] 已完成任务列表: {finishedResult}");
 
             UpdateProgress(0.2, "正在下载并解析题目...");
             var entries = await AppShell.Client.DownloadAndExtractAsync(pcFileId);
@@ -257,7 +276,8 @@ public partial class AutoCompletePage : ContentPage
             var targetEndTime = startTime + (_targetDurationMinutes * 60 * 1000);
             var remainingMs = targetEndTime - AppShell.Client.GetCalibratedTime();
 
-            if (remainingMs > 5000) // 如果还有超过5秒才到目标时间
+            // 原逻辑: if (remainingMs > 5000) // 如果还有超过5秒才到目标时间
+            if (remainingMs > 0) // 立即执行：只要还有时间就等待，负数则立即提交
             {
                 _waitCts = new CancellationTokenSource();
                 _isWaiting = true;
@@ -330,8 +350,9 @@ public partial class AutoCompletePage : ContentPage
 
             if (result)
             {
+                var targetDesc = _targetDurationMinutes == 0 ? "立即" : $"{_targetDurationMinutes}分钟";
                 await DisplayAlert("完成",
-                    $"作业已完成！\n目标用时：{_targetDurationMinutes}分钟\n实际用时：{actualDurationMs / 60000.0:F1}分钟",
+                    $"作业已完成！\n目标用时：{targetDesc}\n实际用时：{actualDurationMs / 60000.0:F1}分钟",
                     "确定");
             }
             else
@@ -572,21 +593,27 @@ public partial class AutoCompletePage : ContentPage
     {
         try
         {
-            var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Up366Master", "logs");
+            // 优先查找Up366Net的日志目录（与Up366Net.cs中一致）
+            var baseDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var logDir = Path.Combine(baseDir, "Up366Net", "logs");
+            if (!Directory.Exists(logDir))
+            {
+                // 备用：查找Up366Master目录
+                logDir = Path.Combine(baseDir, "Up366Master", "logs");
+            }
+            if (!Directory.Exists(logDir))
+            {
+                // 备用：临时目录
+                logDir = Path.GetTempPath();
+            }
             if (!Directory.Exists(logDir)) return string.Empty;
 
-            var todayFiles = Directory.GetFiles(logDir, "autocomplete_*.log")
-                .OrderByDescending(f => f)
-                .Take(1);
+            var logFiles = Directory.GetFiles(logDir, "autocomplete_*.log");
+            if (logFiles.Length == 0) return string.Empty;
 
-            foreach (var file in todayFiles)
-            {
-                var fileInfo = new FileInfo(file);
-                if (fileInfo.CreationTime.Date == DateTime.Today)
-                    return file;
-            }
-
-            return string.Empty;
+            // 返回最新文件
+            var latestFile = logFiles.OrderByDescending(f => new FileInfo(f).LastWriteTime).FirstOrDefault();
+            return latestFile ?? string.Empty;
         }
         catch
         {

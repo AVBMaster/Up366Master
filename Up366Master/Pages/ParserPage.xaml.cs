@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
 using CommunityToolkit.Maui.Storage;
+using Microsoft.Maui.ApplicationModel;
 using Up366Parser;
 
 namespace Up366Master;
@@ -188,10 +189,18 @@ public partial class ParserPage : ContentPage
             return;
         }
 
+        string GetAnswerContent(string answer, List<OptionDisplayItem> options)
+        {
+            if (string.IsNullOrEmpty(answer) || options == null) return answer;
+            var opt = options.FirstOrDefault(o => o.Id?.Equals(answer, StringComparison.OrdinalIgnoreCase) == true);
+            return opt?.Content ?? answer;
+        }
+
         var sb = new StringBuilder();
         sb.AppendLine("===== 天学网题目答案汇总 =====");
         sb.AppendLine($"生成时间: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
         sb.AppendLine($"共 {_questions.Count} 道题目");
+        sb.AppendLine($"生成应用: Up366Master v{AppInfo.Current.VersionString}");
         sb.AppendLine(new string('=', 32));
         sb.AppendLine();
 
@@ -211,7 +220,10 @@ public partial class ParserPage : ContentPage
                     {
                         sb.AppendLine($"      选项: {string.Join("  ", sub.Options.Select(o => $"{o.Id}. {o.Content}"))}");
                     }
-                    sb.AppendLine($"      {sub.AnswerText}");
+                    // 提取答案字母并显示选项内容
+                    var answerContent = sub.AnswerText?.Replace("答案: ", "");
+                    var content = GetAnswerContent(answerContent, sub.Options);
+                    sb.AppendLine($"      答案: {content}");
                 }
             }
             else
@@ -221,7 +233,10 @@ public partial class ParserPage : ContentPage
                 {
                     sb.AppendLine($"选项: {string.Join("  ", q.Options.Select(o => $"{o.Id}. {o.Content}"))}");
                 }
-                sb.AppendLine($"{q.AnswerText}");
+                // 提取答案字母并显示选项内容
+                var answerContent = q.AnswerText?.Replace("答案: ", "");
+                var content = GetAnswerContent(answerContent, q.Options);
+                sb.AppendLine($"答案: {content}");
             }
 
             if (!string.IsNullOrEmpty(q.Transcript))
