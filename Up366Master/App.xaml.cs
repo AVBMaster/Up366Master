@@ -17,8 +17,6 @@ namespace Up366Master
                 {
                     Title = "天学网大师",
                     HeightRequest = 40,
-                    //BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#512BD4"),
-                    //ForegroundColor = Colors.White,
                     Subtitle="Up366Master"
                 }
             };
