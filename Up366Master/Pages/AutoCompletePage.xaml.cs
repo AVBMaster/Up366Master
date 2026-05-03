@@ -217,11 +217,23 @@ public partial class AutoCompletePage : ContentPage
             var linkedClient = await AppShell.Client.GetTaskLinkedClientAsync(_bookId, _taskId);
             Trace.WriteLine($"[AutoComplete] TaskLinkedClient: {linkedClient}");
 
+            UpdateProgress(0.135, "正在获取书籍信息...");
+            var bookInfo = await AppShell.Client.GetBookInfoAsync(_bookId);
+            Trace.WriteLine($"[AutoComplete] BookInfo: {bookInfo?.Substring(0, Math.Min(200, bookInfo?.Length ?? 0))}...");
+
             UpdateProgress(0.14, "正在获取已购买书籍...");
             var purchasedBooks = await AppShell.Client.GetPurchasedBooksAsync();
             Trace.WriteLine($"[AutoComplete] PurchasedBooks: {purchasedBooks}");
 
-            UpdateProgress(0.15, "正在获取已完成任务列表...");
+            UpdateProgress(0.145, "正在获取书籍目录树...");
+            var booksTree = await AppShell.Client.GetBooksTreeAsync(_bookId);
+            Trace.WriteLine($"[AutoComplete] BooksTree: {booksTree?.Substring(0, Math.Min(200, booksTree?.Length ?? 0))}...");
+
+            UpdateProgress(0.15, "正在获取学习计划...");
+            var bookPlan = await AppShell.Client.GetBookPlanAsync(_bookId, _courseId);
+            Trace.WriteLine($"[AutoComplete] BookPlan: {bookPlan?.Substring(0, Math.Min(200, bookPlan?.Length ?? 0))}...");
+
+            UpdateProgress(0.155, "正在获取已完成任务列表...");
             var finishedResult = await AppShell.Client.GetFinishedTaskListAsync(_bookId);
             Trace.WriteLine($"[AutoComplete] 已完成任务列表: {finishedResult}");
 

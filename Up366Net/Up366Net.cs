@@ -616,7 +616,7 @@ namespace Up366Net
 
         #endregion
 
-        #region ★★★ 新增：获取已完成任务列表 ★★★
+#region ★★★ 新增：获取已完成任务列表 ★★★
 
         public async Task<string> GetFinishedTaskListAsync(string bookId, CancellationToken cancellationToken = default)
         {
@@ -637,6 +637,82 @@ namespace Up366Net
 
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
             Log($"[FinishedTaskList] Response: {content}");
+
+            return content;
+        }
+
+        #endregion
+
+        #region ★★★ 新增：获取书籍目录树 ★★★
+
+        public async Task<string> GetBooksTreeAsync(string bookId, CancellationToken cancellationToken = default)
+        {
+            EnsureAuthenticated();
+
+            if (string.IsNullOrEmpty(bookId)) return "{}";
+
+            var url = "https://book-api.up366.cn/client/books/tree";
+            var body = $"bookId={Uri.EscapeDataString(bookId)}&version=undefined&bookType=1";
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Content = new StringContent(body, Encoding.UTF8, "application/x-www-form-urlencoded");
+            AddCommonHeaders(request, Guid.NewGuid().ToString("N"));
+            AddAuthCookies(request);
+            request.Headers.Add("x-app-name", "student-pc");
+            request.Headers.Add("x-requested-with", "PC");
+
+            var clientId = "7DE08EE71FBD3DA75A260946416B7188DBE077E4";
+            request.Headers.Add("clientid", clientId);
+
+            if (_session?.Tgt != null)
+            {
+                request.Headers.Add("u3r", _session.Tgt);
+                request.Headers.Add("u3t", _session.Tgt);
+            }
+
+            Log($"[BooksTree] POST {url} body: {body}");
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            Log($"[BooksTree] Response length: {content.Length}");
+
+            return content;
+        }
+
+        #endregion
+
+        #region ★★★ 新增：获取学习计划 ★★★
+
+        public async Task<string> GetBookPlanAsync(string bookId, string courseId, CancellationToken cancellationToken = default)
+        {
+            EnsureAuthenticated();
+
+            if (string.IsNullOrEmpty(bookId) || string.IsNullOrEmpty(courseId)) return "{}";
+
+            var url = "https://studytask-api.up366.cn/client/book/plan";
+            var body = $"bookId={Uri.EscapeDataString(bookId)}&courseId={Uri.EscapeDataString(courseId)}&bookType=1";
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Content = new StringContent(body, Encoding.UTF8, "application/x-www-form-urlencoded");
+            AddCommonHeaders(request, Guid.NewGuid().ToString("N"));
+            AddAuthCookies(request);
+            request.Headers.Add("x-app-name", "student-pc");
+            request.Headers.Add("x-requested-with", "PC");
+
+            var clientId = "7DE08EE71FBD3DA75A260946416B7188DBE077E4";
+            request.Headers.Add("clientid", clientId);
+
+            if (_session?.Tgt != null)
+            {
+                request.Headers.Add("u3r", _session.Tgt);
+                request.Headers.Add("u3t", _session.Tgt);
+            }
+
+            Log($"[BookPlan] POST {url} body: {body}");
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            Log($"[BookPlan] Response length: {content.Length}");
 
             return content;
         }
@@ -732,12 +808,7 @@ namespace Up366Net
             var clientId = "7DE08EE71FBD3DA75A260946416B7188DBE077E4";
             request.Headers.Add("clientid", clientId);
 
-            // if (_u3Token != null) // 原有方式
-            // {
-            //     request.Headers.Add("u3r", _u3Token);
-            //     request.Headers.Add("u3t", _u3Token);
-            // }
-            if (_session?.Tgt != null) // 使用session中的Tgt
+            if (_session?.Tgt != null)
             {
                 request.Headers.Add("u3r", _session.Tgt);
                 request.Headers.Add("u3t", _session.Tgt);
@@ -747,7 +818,45 @@ namespace Up366Net
             var response = await _httpClient.SendAsync(request, cancellationToken);
 
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            Log($"[PurchasedBooks] Response: {content[..Math.Min(500, content.Length)]}...");
+            Log($"[PurchasedBooks] Response length: {content.Length}");
+
+            return content;
+        }
+
+        #endregion
+
+        #region ★★★ 新增：获取书籍信息 ★★★
+
+        public async Task<string> GetBookInfoAsync(string bookId, string bookType = "1", CancellationToken cancellationToken = default)
+        {
+            EnsureAuthenticated();
+
+            if (string.IsNullOrEmpty(bookId)) return "{}";
+
+            var url = "https://book-api.up366.cn/client/v2/book/info";
+            var body = $"bookId={Uri.EscapeDataString(bookId)}&bookType={bookType}&originalBookId=";
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Content = new StringContent(body, Encoding.UTF8, "application/x-www-form-urlencoded");
+            AddCommonHeaders(request, Guid.NewGuid().ToString("N"));
+            AddAuthCookies(request);
+            request.Headers.Add("x-app-name", "student-pc");
+            request.Headers.Add("x-requested-with", "PC");
+
+            var clientId = "7DE08EE71FBD3DA75A260946416B7188DBE077E4";
+            request.Headers.Add("clientid", clientId);
+
+            if (_session?.Tgt != null)
+            {
+                request.Headers.Add("u3r", _session.Tgt);
+                request.Headers.Add("u3t", _session.Tgt);
+            }
+
+            Log($"[BookInfo] POST {url} body: {body}");
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            Log($"[BookInfo] Response length: {content.Length}");
 
             return content;
         }
