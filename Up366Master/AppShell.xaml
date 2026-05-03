@@ -3,7 +3,7 @@
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:local="clr-namespace:Up366Master"
        x:Class="Up366Master.AppShell"
-       Shell.BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+       Shell.BackgroundColor="{AppThemeBinding Light=#efefef, Dark=#1C1C1E}"
        Shell.ForegroundColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
        Shell.TitleColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
        Shell.DisabledColor="#C7C7CC"
@@ -11,6 +11,7 @@
        Shell.TabBarBackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#1C1C1E}"
        Shell.TabBarTitleColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
        Shell.TabBarUnselectedColor="#8E8E93"
+       Shell.NavBarIsVisible="False"
        FlyoutBehavior="Disabled">
 
     <!-- 登录页（独立，不在 TabBar） -->

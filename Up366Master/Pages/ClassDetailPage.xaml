@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Up366Master.ClassDetailPage"
              Title="班级详情"
-             Shell.NavBarIsVisible="True"
              BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
 
     <RefreshView x:Name="RefreshView" Refreshing="OnRefreshing">
