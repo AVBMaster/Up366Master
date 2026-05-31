@@ -24,11 +24,11 @@ namespace Up366Parser
             if (!Directory.Exists(mediaDir))
                 return -1;
 
-            var mp3Files = Directory.GetFiles(mediaDir, "T*-ZC.mp3");
+            var mp3Files = Directory.GetFiles(mediaDir, "*T*-ZC.mp3");
             if (mp3Files.Length == 0)
                 return -1;
 
-            // 提取文件名中的数字，如 T2-ZC.mp3 -> 2
+            // 提取文件名中的数字，如 T2-ZC.mp3 或 ZJ100T2-ZC.mp3 -> 2
             var fileName = Path.GetFileNameWithoutExtension(mp3Files[0]);
             var match = Regex.Match(fileName, @"T(\d+)-ZC");
             if (match.Success && int.TryParse(match.Groups[1].Value, out int num))
@@ -359,7 +359,7 @@ namespace Up366Parser
         /// <summary>题目唯一ID（MD5哈希）</summary>
         public string QuestionId { get; set; }
 
-        /// <summary>题号（从音频文件名提取，如T2-ZC.mp3 -> 2）</summary>
+        /// <summary>题号（从音频文件名提取，如T2-ZC.mp3或ZJ100T2-ZC.mp3 -> 2）</summary>
         public int QuestionNumber { get; set; }
 
         /// <summary>是否为复合题（长对话/独白含多个子题）</summary>

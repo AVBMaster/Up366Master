@@ -32,7 +32,7 @@ public partial class AppShell : Shell
         });
     }
 
-    private void RegisterRoutes()
+private void RegisterRoutes()
     {
         // 子页面路由
         Routing.RegisterRoute(nameof(ClassDetailPage), typeof(ClassDetailPage));
@@ -41,6 +41,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(ParserPage), typeof(ParserPage));
         Routing.RegisterRoute(nameof(SessionManagePage), typeof(SessionManagePage));
         Routing.RegisterRoute(nameof(AutoCompletePage), typeof(AutoCompletePage));
+        Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
     }
 
     private async Task CheckAutoLoginAsync()

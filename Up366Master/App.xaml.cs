@@ -15,9 +15,9 @@ namespace Up366Master
             {
                 TitleBar = new TitleBar
                 {
+                    Icon="icon.png",
                     Title = "天学网大师",
-                    HeightRequest = 40,
-                    Subtitle="Up366Master"
+                    Subtitle = "Up366Master"
                 }
             };
             return window;

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Up366Master.SettingsPage"
+             Title="设置"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#000000}">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="16">
+
+            <!-- 应用信息 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="16"
+                   Padding="20"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="应用信息"
+                           FontAttributes="Bold"
+                           FontSize="16"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+
+                    <Grid ColumnDefinitions="100,*">
+                        <Label Text="版本" TextColor="#8E8E93"/>
+                        <Label x:Name="VersionLabel" Grid.Column="1"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" Opacity="0.5"/>
+
+                    <Grid ColumnDefinitions="100,*">
+                        <Label Text="构建" TextColor="#8E8E93"/>
+                        <Label Grid.Column="1"
+                               Text="Release"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 通用设置 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="16"
+                   Padding="0"
+                   HasShadow="False">
+                <VerticalStackLayout>
+                    <Grid Padding="16" ColumnDefinitions="Auto,*">
+                        <Label Text="&#xf02d;"
+                               FontFamily="FA6Solid"
+                               FontSize="18"
+                               TextColor="#007AFF"
+                               WidthRequest="30"/>
+                        <Label Grid.Column="1"
+                               Text="深色模式"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                               VerticalOptions="Center"/>
+                        <Switch x:Name="DarkModeSwitch" Grid.Column="2" Toggled="OnDarkModeToggled"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 关于 -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                   CornerRadius="16"
+                   Padding="16"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="关于"
+                           FontAttributes="Bold"
+                           FontSize="16"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+
+                    <Grid Padding="16" ColumnDefinitions="Auto,*">
+                        <Label Text="&#xf129;"
+                               FontFamily="FA6Solid"
+                               FontSize="18"
+                               TextColor="#007AFF"
+                               WidthRequest="30"/>
+                        <Label Grid.Column="1"
+                               Text="天学网大师"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                               VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnAboutTapped"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" Opacity="0.5"/>
+
+                    <Grid Padding="16" ColumnDefinitions="Auto,*">
+                        <Label Text="&#xf121;"
+                               FontFamily="FA6Solid"
+                               FontSize="18"
+                               TextColor="#34C759"
+                               WidthRequest="30"/>
+                        <Label Grid.Column="1"
+                               Text="开源许可"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                               VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnLicensesTapped"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

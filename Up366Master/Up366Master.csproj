@@ -29,6 +29,7 @@
 
 		<!-- Display name -->
 		<ApplicationTitle>Up366Master</ApplicationTitle>
+		<ApplicationIcon>Resources\AppIcon\appicon.ico</ApplicationIcon>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.up366master</ApplicationId>
@@ -36,6 +37,9 @@
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
+		<Version>1.0.0</Version>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
@@ -51,11 +55,14 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
 	  <ApplicationTitle>天学网大师</ApplicationTitle>
 	  <ApplicationId>com.master.up366master</ApplicationId>
+	  <EnableLLVM>False</EnableLLVM>
+	  <RunAOTCompilation>False</RunAOTCompilation>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-ios|AnyCPU'">
 	  <ApplicationTitle>天学网大师</ApplicationTitle>
 	  <ApplicationId>com.master.up366master</ApplicationId>
+	  <EnableSGenConc>True</EnableSGenConc>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-maccatalyst|AnyCPU'">
@@ -71,11 +78,16 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
 	  <ApplicationTitle>天学网大师</ApplicationTitle>
 	  <ApplicationId>com.master.up366master</ApplicationId>
+	  <EnableLLVM>False</EnableLLVM>
+	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	  <AndroidLinkTool>r8</AndroidLinkTool>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
 	  <ApplicationTitle>天学网大师</ApplicationTitle>
 	  <ApplicationId>com.master.up366master</ApplicationId>
+	  <MtouchUseLlvm>False</MtouchUseLlvm>
+	  <EnableSGenConc>True</EnableSGenConc>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-maccatalyst|AnyCPU'">
@@ -89,11 +101,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" />
+		<!-- App Icon - 使用主SVG源文件，Maui会自动生成所有尺寸 -->
 
-		<!-- Splash Screen -->
-		<MauiImage Include="Resources\Splash\splash.svg"></MauiImage>
+		<!-- Splash Screen - Maui会自动生成所有平台所需尺寸 -->
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" BaseSize="1080,1920" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -102,10 +113,11 @@
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
 
-		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-		<MauiImage Remove="Resources\Images\appicon.svg" />
-		<MauiAsset Include="Resources\AppIcon\appicon.svg" />
+		<None Remove="Resources\AppIcon\appicon.ico" />
+		<None Remove="Resources\AppIcon\appicon.png" />
+		<MauiAsset Include="Resources\Splash\splash.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -125,6 +137,9 @@
 	  </Compile>
 	  <Compile Update="Pages\HomeworkDetailPage.xaml.cs">
 	    <DependentUpon>HomeworkDetailPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\SettingsPage.xaml.cs">
+	    <DependentUpon>SettingsPage.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
@@ -169,5 +184,30 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
+
+	<Target Name="AutoIncrementVersion" BeforeTargets="BeforeBuild">
+		<PropertyGroup>
+			<_VersionFile>$(MSProjectDir).version.txt</_VersionFile>
+			<_Major>1</_Major>
+			<_Minor>0</_Minor>
+			<_Build>0</_Build>
+		</PropertyGroup>
+		<ReadLinesFromFile File="$(_VersionFile)" Condition="Exists('$(_VersionFile)')">
+			<Output TaskParameter="Lines" PropertyName="_CurrentVersion" />
+		</ReadLinesFromFile>
+		<PropertyGroup Condition="'$(_CurrentVersion)' != ''">
+			<_Major>$([System.String]::new('$(_CurrentVersion)').Split('.')[0])</_Major>
+			<_Minor>$([System.String]::new('$(_CurrentVersion)').Split('.')[1])</_Minor>
+			<_Build>$([MSBuild]::Add($([System.String]::new('$(_CurrentVersion)').Split('.')[2]), 1))</_Build>
+		</PropertyGroup>
+		<PropertyGroup>
+			<Version>$(_Major).$(_Minor).$(_Build)</Version>
+			<ApplicationDisplayVersion>$(_Major).$(_Minor).$(_Build)</ApplicationDisplayVersion>
+			<ApplicationVersion>$([MSBuild]::Add($(_Build), 1))</ApplicationVersion>
+			<AssemblyVersion>$(_Major).$(_Minor).$(_Build).0</AssemblyVersion>
+			<FileVersion>$(_Major).$(_Minor).$(_Build).0</FileVersion>
+		</PropertyGroup>
+		<WriteLinesToFile File="$(_VersionFile)" Lines="$(Version)" Overwrite="true" />
+	</Target>
 
 </Project>
