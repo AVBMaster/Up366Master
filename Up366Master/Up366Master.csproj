@@ -18,6 +18,7 @@
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
 
 		<!-- Enable XAML source generation for faster build times and improved performance.
 		     This generates C# code from XAML at compile time instead of runtime inflation.
@@ -50,6 +51,11 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<DefaultLanguage>zh-cn</DefaultLanguage>
+	</PropertyGroup>
+
+	<!--<PropertyGroup> 用于规避 Windows App SDK 的一个 bug-->
+	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(RuntimeIdentifierOverride)' != ''">
+		<RuntimeIdentifier>$(RuntimeIdentifierOverride)</RuntimeIdentifier>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
@@ -102,6 +108,7 @@
 
 	<ItemGroup>
 		<!-- App Icon - 使用主SVG源文件，Maui会自动生成所有尺寸 -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" />
 
 		<!-- Splash Screen - Maui会自动生成所有平台所需尺寸 -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" BaseSize="1080,1920" />
@@ -185,7 +192,40 @@
 	  </MauiXaml>
 	</ItemGroup>
 
-	<Target Name="AutoIncrementVersion" BeforeTargets="BeforeBuild">
+	<Target Name="ApplyVersionFromFile" BeforeTargets="BeforeBuild">
+		<PropertyGroup>
+			<!-- 注意：$(MSProjectDir) 可能是 $(MSBuildProjectDirectory) 的简写，请确认路径正确 -->
+			<_VersionFile>$(MSProjectDir).version.txt</_VersionFile>
+			<!-- 默认版本，当文件不存在时使用 -->
+			<_Major>1</_Major>
+			<_Minor>0</_Minor>
+			<_Build>0</_Build>
+		</PropertyGroup>
+
+		<!-- 读取版本文件 -->
+		<ReadLinesFromFile File="$(_VersionFile)" Condition="Exists('$(_VersionFile)')">
+			<Output TaskParameter="Lines" PropertyName="_CurrentVersion" />
+		</ReadLinesFromFile>
+
+		<!-- 如果读到内容，解析出 Major.Minor.Build -->
+		<PropertyGroup Condition="'$(_CurrentVersion)' != ''">
+			<_Major>$([System.String]::new('$(_CurrentVersion)').Split('.')[0])</_Major>
+			<_Minor>$([System.String]::new('$(_CurrentVersion)').Split('.')[1])</_Minor>
+			<_Build>$([System.String]::new('$(_CurrentVersion)').Split('.')[2])</_Build>
+		</PropertyGroup>
+
+		<!-- 应用到所有版本属性 -->
+		<PropertyGroup>
+			<Version>$(_Major).$(_Minor).$(_Build)</Version>
+			<ApplicationDisplayVersion>$(_Major).$(_Minor).$(_Build)</ApplicationDisplayVersion>
+			<ApplicationVersion>$(_Build)</ApplicationVersion>
+			<!-- 不再 +1，保持与 Build 一致 -->
+			<AssemblyVersion>$(_Major).$(_Minor).$(_Build).0</AssemblyVersion>
+			<FileVersion>$(_Major).$(_Minor).$(_Build).0</FileVersion>
+		</PropertyGroup>
+	</Target>
+
+	<!--<Target Name="AutoIncrementVersion" BeforeTargets="BeforeBuild">
 		<PropertyGroup>
 			<_VersionFile>$(MSProjectDir).version.txt</_VersionFile>
 			<_Major>1</_Major>
@@ -208,6 +248,6 @@
 			<FileVersion>$(_Major).$(_Minor).$(_Build).0</FileVersion>
 		</PropertyGroup>
 		<WriteLinesToFile File="$(_VersionFile)" Lines="$(Version)" Overwrite="true" />
-	</Target>
+	</Target>-->
 
 </Project>

@@ -15,4 +15,37 @@
     <ProjectReference Include="..\Up366Parser\Up366Parser.csproj" />
   </ItemGroup>
 
+	<Target Name="ApplyVersionFromFile" BeforeTargets="BeforeBuild">
+		<PropertyGroup>
+			<!-- 注意：$(MSProjectDir) 可能是 $(MSBuildProjectDirectory) 的简写，请确认路径正确 -->
+			<_VersionFile>$(MSProjectDir).version.txt</_VersionFile>
+			<!-- 默认版本，当文件不存在时使用 -->
+			<_Major>1</_Major>
+			<_Minor>0</_Minor>
+			<_Build>0</_Build>
+		</PropertyGroup>
+
+		<!-- 读取版本文件 -->
+		<ReadLinesFromFile File="$(_VersionFile)" Condition="Exists('$(_VersionFile)')">
+			<Output TaskParameter="Lines" PropertyName="_CurrentVersion" />
+		</ReadLinesFromFile>
+
+		<!-- 如果读到内容，解析出 Major.Minor.Build -->
+		<PropertyGroup Condition="'$(_CurrentVersion)' != ''">
+			<_Major>$([System.String]::new('$(_CurrentVersion)').Split('.')[0])</_Major>
+			<_Minor>$([System.String]::new('$(_CurrentVersion)').Split('.')[1])</_Minor>
+			<_Build>$([System.String]::new('$(_CurrentVersion)').Split('.')[2])</_Build>
+		</PropertyGroup>
+
+		<!-- 应用到所有版本属性 -->
+		<PropertyGroup>
+			<Version>$(_Major).$(_Minor).$(_Build)</Version>
+			<ApplicationDisplayVersion>$(_Major).$(_Minor).$(_Build)</ApplicationDisplayVersion>
+			<ApplicationVersion>$(_Build)</ApplicationVersion>
+			<!-- 不再 +1，保持与 Build 一致 -->
+			<AssemblyVersion>$(_Major).$(_Minor).$(_Build).0</AssemblyVersion>
+			<FileVersion>$(_Major).$(_Minor).$(_Build).0</FileVersion>
+		</PropertyGroup>
+	</Target>
+
 </Project>
