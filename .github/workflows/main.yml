@@ -111,19 +111,24 @@ jobs:
             -f net10.0-windows10.0.19041.0 `
             -c Release `
             -p:WindowsPackageType=None `
-            -p:PublishSingleFile=true `
+            -p:WindowsAppSDKSelfContained=true `
             -p:SelfContained=true `
-            -p:RuntimeIdentifier=win-x64 `
-            -p:IncludeNativeLibrariesForSelfExtract=true
+            --no-restore
       - name: List Windows Output
         shell: pwsh
         run: |
           Get-ChildItem -Path "Up366Master/bin/Release/net10.0-windows10.0.19041.0" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
+      - name: Zip Windows Output
+        shell: pwsh
+        run: |
+          $source = "Up366Master/bin/Release/net10.0-windows10.0.19041.0/win-x64/publish"
+          $dest = "Up366Master/bin/Release/net10.0-windows10.0.19041.0/win-x64/Up366Master-Windows.zip"
+          Compress-Archive -Path "$source/*" -DestinationPath $dest -Force
+          Write-Host "Created: $dest"
       - uses: actions/upload-artifact@v4
         with:
           name: maui-windows
-          path: Up366Master/bin/Release/net10.0-windows10.0.19041.0/win-x64/publish/*.exe
-
+          path: Up366Master/bin/Release/net10.0-windows10.0.19041.0/win-x64/Up366Master-Windows.zip
   # ============================================
   # CLI - Windows (x64) 单文件
   # ============================================
