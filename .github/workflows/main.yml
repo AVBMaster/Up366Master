@@ -40,7 +40,7 @@ jobs:
   # ============================================
   # MAUI - iOS
   # ============================================
-  build-ios:
+   build-ios:
     runs-on: macos-latest
     name: MAUI iOS
     steps:
@@ -53,7 +53,14 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - run: dotnet workload install maui --ignore-failed-sources
       - run: dotnet restore ${{ env.MAUI_PROJECT }}
-      - run: dotnet publish ${{ env.MAUI_PROJECT }} -f net10.0-ios -c Release -p:RuntimeIdentifier=ios-arm64 -p:CodesignKey="" -p:CodesignProvision="" -p:BuildIpa=true
+      - run: |
+          dotnet publish ${{ env.MAUI_PROJECT }} \
+            -f net10.0-ios \
+            -c Release \
+            -p:RuntimeIdentifier=ios-arm64 \
+            -p:CodesignKey=- \
+            -p:CodesignProvision= \
+            -p:BuildIpa=true
       - name: List iOS Output
         run: find Up366Master/bin/Release/net10.0-ios -type f 2>/dev/null || echo "Directory not found"
       - uses: actions/upload-artifact@v4
