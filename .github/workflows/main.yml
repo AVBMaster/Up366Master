@@ -5,7 +5,7 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
-  workflow_dispatch:  # 手动触发按钮
+  workflow_dispatch:
 
 env:
   DOTNET_VERSION: '10.0.x'
@@ -29,12 +29,13 @@ jobs:
       - run: dotnet workload install maui --ignore-failed-sources
       - run: dotnet restore ${{ env.MAUI_PROJECT }}
       - run: dotnet publish ${{ env.MAUI_PROJECT }} -f net10.0-android -c Release
+      - name: List Android Output
+        shell: pwsh
+        run: Get-ChildItem -Path "Up366Master/bin/Release/net10.0-android" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
       - uses: actions/upload-artifact@v4
         with:
           name: maui-android
-          path: |
-            **/bin/Release/net10.0-android/publish/*-Signed.aab
-            **/bin/Release/net10.0-android/publish/*-Signed.apk
+          path: Up366Master/bin/Release/net10.0-android/publish/*-Signed.*
 
   # ============================================
   # MAUI - iOS
@@ -52,11 +53,13 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - run: dotnet workload install maui --ignore-failed-sources
       - run: dotnet restore ${{ env.MAUI_PROJECT }}
-      - run: dotnet publish ${{ env.MAUI_PROJECT }} -f net10.0-ios -c Release -p:RuntimeIdentifier=ios-arm64
+      - run: dotnet publish ${{ env.MAUI_PROJECT }} -f net10.0-ios -c Release -p:RuntimeIdentifier=ios-arm64 -p:CodesignKey="" -p:CodesignProvision="" -p:BuildIpa=true
+      - name: List iOS Output
+        run: find Up366Master/bin/Release/net10.0-ios -type f 2>/dev/null || echo "Directory not found"
       - uses: actions/upload-artifact@v4
         with:
           name: maui-ios
-          path: '**/bin/Release/net10.0-ios/publish/*.ipa'
+          path: Up366Master/bin/Release/net10.0-ios/publish/*.ipa
 
   # ============================================
   # MAUI - macOS (Mac Catalyst)
@@ -75,11 +78,13 @@ jobs:
       - run: dotnet workload install maui --ignore-failed-sources
       - run: dotnet restore ${{ env.MAUI_PROJECT }}
       - run: dotnet publish ${{ env.MAUI_PROJECT }} -f net10.0-maccatalyst -c Release
+      - name: List macOS Output
+        run: find Up366Master/bin/Release/net10.0-maccatalyst -type f 2>/dev/null | head -50 || echo "Directory not found"
       - uses: actions/upload-artifact@v4
         with:
           name: maui-macos
-          path: '**/bin/Release/net10.0-maccatalyst/publish/*.app'
-
+          path: Up366Master/bin/Release/net10.0-maccatalyst/publish/*.pkg
+          
   # ============================================
   # MAUI - Windows
   # ============================================
@@ -94,10 +99,13 @@ jobs:
       - run: dotnet workload install maui --ignore-failed-sources
       - run: dotnet restore ${{ env.MAUI_PROJECT }}
       - run: dotnet publish ${{ env.MAUI_PROJECT }} -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=None
+      - name: List Windows Output
+        shell: pwsh
+        run: Get-ChildItem -Path "Up366Master/bin/Release" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
       - uses: actions/upload-artifact@v4
         with:
           name: maui-windows
-          path: '**/bin/Release/net10.0-windows*/publish/*.exe'
+          path: Up366Master/bin/Release/net10.0-windows10.0.19041.0/win-x64/publish/*
 
   # ============================================
   # CLI - Windows (x64)
@@ -111,11 +119,11 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - run: dotnet restore ${{ env.CLI_PROJECT }}
-      - run: dotnet publish ${{ env.CLI_PROJECT }} -c Release -r win-x64 --self-contained true
+      - run: dotnet publish ${{ env.CLI_PROJECT }} -c Release -r win-x64 --self-contained false
       - uses: actions/upload-artifact@v4
         with:
           name: cli-windows-x64
-          path: '**/bin/Release/net10.0/win-x64/publish/*'
+          path: Up366MasterCLI/bin/Release/net10.0/win-x64/publish/*
 
   # ============================================
   # CLI - Linux (x64)
@@ -129,11 +137,11 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - run: dotnet restore ${{ env.CLI_PROJECT }}
-      - run: dotnet publish ${{ env.CLI_PROJECT }} -c Release -r linux-x64 --self-contained true
+      - run: dotnet publish ${{ env.CLI_PROJECT }} -c Release -r linux-x64 --self-contained false
       - uses: actions/upload-artifact@v4
         with:
           name: cli-linux-x64
-          path: '**/bin/Release/net10.0/linux-x64/publish/*'
+          path: Up366MasterCLI/bin/Release/net10.0/linux-x64/publish/*
 
   # ============================================
   # CLI - macOS (x64 + arm64)
@@ -147,11 +155,11 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - run: dotnet restore ${{ env.CLI_PROJECT }}
-      - run: dotnet publish ${{ env.CLI_PROJECT }} -c Release -r osx-x64 --self-contained true
-      - run: dotnet publish ${{ env.CLI_PROJECT }} -c Release -r osx-arm64 --self-contained true
+      - run: dotnet publish ${{ env.CLI_PROJECT }} -c Release -r osx-x64 --self-contained false
+      - run: dotnet publish ${{ env.CLI_PROJECT }} -c Release -r osx-arm64 --self-contained false
       - uses: actions/upload-artifact@v4
         with:
           name: cli-macos
           path: |
-            **/bin/Release/net10.0/osx-x64/publish/*
-            **/bin/Release/net10.0/osx-arm64/publish/*
+            Up366MasterCLI/bin/Release/net10.0/osx-x64/publish/*
+            Up366MasterCLI/bin/Release/net10.0/osx-arm64/publish/*
