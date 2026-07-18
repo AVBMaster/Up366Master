@@ -39,7 +39,7 @@ jobs:
           path: Up366Master/bin/Release/net10.0-android/publish/*-Signed.*
 
   # ============================================
-  # MAUI - iOS (使用临时自签名证书)
+  # MAUI - iOS (免签名，仅编译验证)
   # ============================================
   build-ios:
     runs-on: macos-latest
@@ -49,23 +49,6 @@ jobs:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
-
-      - name: Create temporary iOS certificate
-        run: |
-          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          
-          openssl req -x509 -newkey rsa:2048 -keyout $RUNNER_TEMP/key.pem -out $RUNNER_TEMP/cert.pem -days 1 -nodes -subj "/CN=TempiOSDeveloper"
-          openssl pkcs12 -export -out $CERTIFICATE_PATH -inkey $RUNNER_TEMP/key.pem -in $RUNNER_TEMP/cert.pem -password pass:temp123
-          
-          security create-keychain -p "temp123" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "temp123" $KEYCHAIN_PATH
-          
-          security import $CERTIFICATE_PATH -P "temp123" -A -t cert -k $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "temp123" $KEYCHAIN_PATH
-
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
@@ -76,14 +59,15 @@ jobs:
             -f net10.0-ios \
             -c Release \
             -p:RuntimeIdentifier=ios-arm64 \
-            -p:CodesignKey="TempiOSDeveloper" \
-            -p:BuildIpa=true
+            -p:CodesignKey=- \
+            -p:CodesignProvision= \
+            -p:BuildIpa=false
       - name: List iOS Output
         run: find Up366Master/bin/Release/net10.0-ios -type f 2>/dev/null || echo "Directory not found"
       - uses: actions/upload-artifact@v4
         with:
           name: maui-ios
-          path: Up366Master/bin/Release/net10.0-ios/publish/*.ipa
+          path: Up366Master/bin/Release/net10.0-ios/**/*.app
 
   # ============================================
   # MAUI - macOS (Mac Catalyst)
