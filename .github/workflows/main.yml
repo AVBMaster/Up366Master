@@ -96,7 +96,7 @@ jobs:
   # ============================================
   # MAUI - Windows (单文件)
   # ============================================
-build-maui-windows:
+  build-maui-windows:
     runs-on: windows-latest
     name: MAUI Windows
     steps:
