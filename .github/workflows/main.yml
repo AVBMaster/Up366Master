@@ -96,7 +96,7 @@ jobs:
   # ============================================
   # MAUI - Windows (单文件)
   # ============================================
-  build-maui-windows:
+build-maui-windows:
     runs-on: windows-latest
     name: MAUI Windows
     steps:
@@ -111,9 +111,7 @@ jobs:
             -f net10.0-windows10.0.19041.0 `
             -c Release `
             -p:WindowsPackageType=None `
-            -p:WindowsAppSDKSelfContained=true `
-            -p:SelfContained=true `
-            --no-restore
+            -p:SelfContained=true
       - name: List Windows Output
         shell: pwsh
         run: |
@@ -122,13 +120,19 @@ jobs:
         shell: pwsh
         run: |
           $source = "Up366Master/bin/Release/net10.0-windows10.0.19041.0/win-x64/publish"
-          $dest = "Up366Master/bin/Release/net10.0-windows10.0.19041.0/win-x64/Up366Master-Windows.zip"
-          Compress-Archive -Path "$source/*" -DestinationPath $dest -Force
-          Write-Host "Created: $dest"
+          if (Test-Path $source) {
+            $dest = "Up366Master/bin/Release/net10.0-windows10.0.19041.0/win-x64/Up366Master-Windows.zip"
+            Compress-Archive -Path "$source/*" -DestinationPath $dest -Force
+            Write-Host "Created: $dest"
+          } else {
+            Write-Host "Source not found, listing bin/Release contents:"
+            Get-ChildItem -Path "Up366Master/bin/Release" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
+          }
       - uses: actions/upload-artifact@v4
         with:
           name: maui-windows
-          path: Up366Master/bin/Release/net10.0-windows10.0.19041.0/win-x64/Up366Master-Windows.zip
+          path: Up366Master/bin/Release/net10.0-windows10.0.19041.0/win-x64/*.zip
+          
   # ============================================
   # CLI - Windows (x64) 单文件
   # ============================================
